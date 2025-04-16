@@ -1,38 +1,37 @@
 // An array of links for navigation bar
 const navBarLinks = [
-  { name: "Home", url: "/" },
-  { name: "Products", url: "/products" },
-  { name: "Services", url: "/services" },
-  { name: "Blog", url: "/blog" },
-  { name: "Contact", url: "/contact" },
+  { name: "Inicio", url: "/" },
+  { name: "Productos", url: "/products" },
+  { name: "Ofertas", url: "/services" },
+  { name: "Contacto", url: "/contact" },
 ];
 // An array of links for footer
 const footerLinks = [
   {
-    section: "Ecosystem",
+    section: "Productos y Servicios",
     links: [
-      { name: "Documentation", url: "/welcome-to-docs/" },
-      { name: "Tools & Equipment", url: "/products" },
-      { name: "Construction Services", url: "/services" },
+      { name: "Catálogo de Productos", url: "/products" },
+      { name: "Herramientas y Equipos", url: "/products/tools" },
+      { name: "Materiales de Construcción", url: "/products/construction" },
     ],
   },
   {
-    section: "Company",
+    section: "Empresa",
     links: [
-      { name: "About us", url: "#" },
-      { name: "Blog", url: "/blog" },
-      { name: "Careers", url: "#" },
-      { name: "Customers", url: "#" },
+      { name: "Sobre FERREMAS", url: "/about" },
+      { name: "Blog y Noticias", url: "/blog" },
+      { name: "Trabaja con nosotros", url: "/careers" },
+      { name: "Clientes y Testimonios", url: "/customers" },
     ],
   },
 ];
 // An object of links for social icons
 const socialLinks = {
-  facebook: "https://www.facebook.com/",
-  x: "https://twitter.com/",
-  github: "https://github.com/mearashadowfax/ScrewFast",
-  google: "https://www.google.com/",
-  slack: "https://slack.com/",
+  facebook: "https://www.facebook.com/ferremas",     // cambiar al real si existe
+  instagram: "https://www.instagram.com/ferremas",   // cambiar al real si existe
+  linkedin: "https://www.linkedin.com/company/ferremas", // opcional
+  whatsapp: "https://wa.me/56912345678",             // número de contacto
+  youtube: "https://www.youtube.com/@ferremas",       // si tienen canal
 };
 
 export default {
