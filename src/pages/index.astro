@@ -7,13 +7,11 @@ import ClientsSection from "@components/sections/landing/ClientsSection.astro";
 import FeaturesGeneral from "@components/sections/features/FeaturesGeneral.astro";
 import FeaturesNavs from "@components/sections/features/FeaturesNavs.astro";
 import TestimonialsSection from "@components/sections/testimonials/TestimonialsSection.astro";
-import PricingSection from "@components/sections/pricing/PricingSection.astro";
 import FAQ from "@components/sections/misc/FAQ.astro";
 import AnnouncementBanner from "@components/ui/banners/AnnouncementBanner.astro";
 import heroImage from "@images/hero-image.avif";
 import faqs from "@data/faqs.json";
 import features from "@data/features.json";
-import pricing from "@data/pricing.json";
 import featureImage from "@images/features-image.avif";
 import construction from "@images/construction-image.avif";
 import tools from "@images/automated-tools.avif";
@@ -67,30 +65,30 @@ const avatarSrcs: Array<string> = [
   />
 
   <FeaturesNavs
-    title=`Personaliza las soluciones de <span class="text-yellow-500 dark:text-yellow-400">FERREMAS</span> para tus proyectos.`
-    tabs={[
+  title=`Explora las soluciones de <span class="text-yellow-500 dark:text-yellow-400">FERREMAS</span> diseñadas para tus necesidades.`
+  tabs={[
       {
-        heading: "Herramientas de Vanguardia",
+        heading: "Herramientas de Alta Calidad",
         content:
-          "Descubre herramientas de alta calidad que mejoran la eficiencia en tus proyectos de construcción y ferretería.",
+          "Encuentra herramientas manuales y eléctricas de marcas reconocidas como Bosch, Makita y Stanley, ideales para proyectos de construcción y ferretería.",
         svg: "tools",
         src: tools,
         alt: "Equipo pesado amarillo y negro en un campo de hierba marrón",
         first: true,
       },
       {
-        heading: "Gestión Intuitiva",
+        heading: "Soporte Personalizado",
         content:
-          "Administra tus proyectos con facilidad utilizando nuestras soluciones digitales diseñadas para optimizar tu flujo de trabajo.",
+          "Recibe asesoramiento experto en nuestras sucursales y accede a soluciones rápidas para tus proyectos, con atención personalizada en todo Chile.",
         svg: "dashboard",
         src: dashboard,
         alt: "Captura de pantalla de un panel de gestión intuitivo",
         second: true,
       },
       {
-        heading: "Características Robustas",
+        heading: "Soluciones Innovadoras",
         content:
-          "Simplifica tus operaciones con herramientas y servicios diseñados para maximizar la productividad.",
+          "Descubre productos diseñados para maximizar la eficiencia y reducir costos en tus proyectos, con tecnología avanzada y diseño funcional.",
         svg: "house",
         src: construction,
         alt: "Estructura metálica gris cerca de una grúa torre durante el día",
@@ -134,7 +132,7 @@ const avatarSrcs: Array<string> = [
     ]}
   />
 
-  <PricingSection pricing={pricing} />
+
 
   <FAQ title="Preguntas<br />frecuentes" faqs={faqs} />
 

@@ -63,7 +63,7 @@ Vista Cliente
  Comprar productos mediante un sistema de carrito de compras.
  Seleccionar retiro en tienda o despacho a domicilio.
  Diversas opciones de pago: débito, crédito, transferencia.
- Vista Vendedor
+Vista Vendedor
  Visualizar productos disponibles en bodega.
  Aprobar o rechazar pedidos.
  Enviar órdenes a bodegueros y organizar el despacho a clientes.
