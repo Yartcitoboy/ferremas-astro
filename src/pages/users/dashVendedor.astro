@@ -1,0 +1,203 @@
+---
+import { Package, ShoppingCart, Truck, CheckCircle, XCircle, Search } from "@lucide/astro";
+import MainLayout from "@/layouts/MainLayout.astro";
+
+const inventarioData = [
+  { id: 1, codigo: "P001", nombre: 'Monitor LED 24"', categoria: "Electrónica", stock: 25, precio: 199.99, estado: "Disponible" },
+  { id: 2, codigo: "P002", nombre: "Teclado Mecánico RGB", categoria: "Periféricos", stock: 42, precio: 89.99, estado: "Disponible" },
+  { id: 3, codigo: "P003", nombre: "Mouse Inalámbrico", categoria: "Periféricos", stock: 18, precio: 29.99, estado: "Disponible" },
+  { id: 4, codigo: "P004", nombre: "Disco SSD 500GB", categoria: "Almacenamiento", stock: 7, precio: 79.99, estado: "Bajo Stock" },
+  { id: 5, codigo: "P005", nombre: "Memoria RAM 16GB", categoria: "Componentes", stock: 31, precio: 89.99, estado: "Disponible" },
+  { id: 6, codigo: "P006", nombre: "Tarjeta Gráfica RTX 3060", categoria: "Componentes", stock: 5, precio: 399.99, estado: "Bajo Stock" },
+];
+
+const pedidosData = [
+  { id: "ORD-2023-001", cliente: "Juan Pérez", fecha: "15/04/2023", total: 329.98, estado: "Pendiente" },
+  { id: "ORD-2023-002", cliente: "María López", fecha: "16/04/2023", total: 199.99, estado: "Aprobado" },
+  { id: "ORD-2023-003", cliente: "Carlos Rodríguez", fecha: "16/04/2023", total: 479.98, estado: "Pendiente" },
+];
+
+const despachosData = [
+  { id: "ORD-2023-002", cliente: "María López", direccion: "Av. Principal 123", estado: "En preparación" },
+  { id: "ORD-2023-006", cliente: "Luisa Fernández", direccion: "Calle Secundaria 456", estado: "Listo para envío" },
+];
+---
+
+<MainLayout>
+  <div class="flex min-h-screen flex-col bg-neutral-900 text-white">
+    <!-- Header -->
+    <header class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6">
+      <h1 class="text-xl font-semibold text-orange-500">Panel de Vendedor</h1>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="flex items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6 py-3">
+      <button
+        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
+        data-tab="#inventario"
+      >
+        <Package class="h-5 w-5 text-orange-500" />
+        Inventario
+      </button>
+      <button
+        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
+        data-tab="#pedidos"
+      >
+        <ShoppingCart class="h-5 w-5 text-orange-500" />
+        Pedidos
+      </button>
+      <button
+        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
+        data-tab="#despachos"
+      >
+        <Truck class="h-5 w-5 text-orange-500" />
+        Despachos
+      </button>
+      <div class="ml-auto flex items-center gap-2">
+        <input
+          type="text"
+          id="search"
+          placeholder="Buscar..."
+          class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+        <button
+          id="filter"
+          class="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white hover:bg-neutral-700"
+        >
+          <Search class="h-5 w-5 text-orange-500" />
+          Filtrar
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex flex-1">
+      <main class="flex-1 p-6">
+        <!-- Inventario -->
+        <div id="inventario" class="tab-content">
+          <h2 class="text-lg font-semibold text-orange-500">Productos en Bodega</h2>
+          <table class="w-full border-collapse text-left text-sm text-neutral-400">
+            <thead class="bg-neutral-700 text-neutral-300">
+              <tr>
+                <th class="border border-neutral-700 px-4 py-2">Código</th>
+                <th class="border border-neutral-700 px-4 py-2">Producto</th>
+                <th class="border border-neutral-700 px-4 py-2">Categoría</th>
+                <th class="border border-neutral-700 px-4 py-2">Stock</th>
+                <th class="border border-neutral-700 px-4 py-2">Precio</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inventarioData.map((producto) => (
+                <tr class="hover:bg-neutral-700">
+                  <td class="border border-neutral-700 px-4 py-2">{producto.codigo}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{producto.nombre}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{producto.categoria}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{producto.stock}</td>
+                  <td class="border border-neutral-700 px-4 py-2">${producto.precio.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pedidos -->
+        <div id="pedidos" class="tab-content hidden">
+          <h2 class="text-lg font-semibold text-orange-500">Gestión de Pedidos</h2>
+          <table class="w-full border-collapse text-left text-sm text-neutral-400">
+            <thead class="bg-neutral-700 text-neutral-300">
+              <tr>
+                <th class="border border-neutral-700 px-4 py-2">N° Pedido</th>
+                <th class="border border-neutral-700 px-4 py-2">Cliente</th>
+                <th class="border border-neutral-700 px-4 py-2">Fecha</th>
+                <th class="border border-neutral-700 px-4 py-2">Total</th>
+                <th class="border border-neutral-700 px-4 py-2">Estado</th>
+                <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pedidosData.map((pedido) => (
+                <tr class="hover:bg-neutral-700">
+                  <td class="border border-neutral-700 px-4 py-2">{pedido.id}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{pedido.cliente}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{pedido.fecha}</td>
+                  <td class="border border-neutral-700 px-4 py-2">${pedido.total.toFixed(2)}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{pedido.estado}</td>
+                  <td class="border border-neutral-700 px-4 py-2 flex gap-2">
+                    <button class="flex items-center gap-1 rounded-lg border-green-500 px-3 py-1 text-sm text-white hover:bg-green-600">
+                      <CheckCircle class="h-4 w-4" />
+                      Aceptar
+                    </button>
+                    <button class="flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600">
+                      <XCircle class="h-4 w-4" />
+                      Rechazar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Despachos -->
+        <div id="despachos" class="tab-content hidden">
+          <h2 class="text-lg font-semibold text-orange-500">Organización de Despachos</h2>
+          <table class="w-full border-collapse text-left text-sm text-neutral-400">
+            <thead class="bg-neutral-700 text-neutral-300">
+              <tr>
+                <th class="border border-neutral-700 px-4 py-2">N° Pedido</th>
+                <th class="border border-neutral-700 px-4 py-2">Cliente</th>
+                <th class="border border-neutral-700 px-4 py-2">Dirección</th>
+                <th class="border border-neutral-700 px-4 py-2">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {despachosData.map((despacho) => (
+                <tr class="hover:bg-neutral-700">
+                  <td class="border border-neutral-700 px-4 py-2">{despacho.id}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{despacho.cliente}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{despacho.direccion}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{despacho.estado}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContents = document.querySelectorAll(".tab-content");
+  const searchInput = document.getElementById("search");
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = document.querySelector(btn.dataset.tab);
+
+      tabContents.forEach((content) => content.classList.add("hidden"));
+      tabButtons.forEach((button) => button.classList.remove("bg-neutral-700"));
+
+      if (target) {
+        target.classList.remove("hidden");
+      }
+      btn.classList.add("bg-neutral-700");
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+  const query = (e.target as HTMLInputElement).value.toLowerCase(); // Asegúrate de que e.target sea un HTMLInputElement
+  const activeTab = document.querySelector(".tab-content:not(.hidden)"); // Selecciona la pestaña activa
+  if (!activeTab) return;
+
+  const rows = activeTab.querySelectorAll("tbody tr");
+
+  rows.forEach((row) => {
+    const text = row.textContent?.toLowerCase() || ""; // Usa el operador opcional para evitar errores
+    (row as HTMLElement).style.display = text.includes(query) ? "" : "none"; // Asegúrate de que row sea un HTMLElement
+  });
+});
+}
+</script>
