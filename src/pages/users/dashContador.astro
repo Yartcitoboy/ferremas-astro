@@ -1,0 +1,151 @@
+---
+// filepath: d:\ScrewFast\src\pages\users\dashContador.astro
+import { DollarSign, CheckCircle, Truck, Search } from "@lucide/astro";
+import MainLayout from "@/layouts/MainLayout.astro";
+
+const pagosData = [
+  { id: "PG-2023-001", cliente: "Juan Pérez", fecha: "15/04/2023", monto: 329.98, estado: "Pendiente" },
+  { id: "PG-2023-002", cliente: "María López", fecha: "16/04/2023", monto: 199.99, estado: "Confirmado" },
+];
+
+const entregasData = [
+  { id: "ENT-2023-001", cliente: "Carlos Rodríguez", fecha: "16/04/2023", estado: "Pendiente" },
+  { id: "ENT-2023-002", cliente: "Ana Fernández", fecha: "17/04/2023", estado: "Entregado" },
+];
+---
+
+<MainLayout>
+  <div class="flex min-h-screen flex-col bg-neutral-900 text-white">
+    <!-- Header -->
+    <header class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6">
+      <h1 class="text-xl font-semibold text-orange-500">Panel de Contador</h1>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="flex items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6 py-3">
+      <button
+        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
+        data-tab="#pagos"
+      >
+        <DollarSign class="h-5 w-5 text-orange-500" />
+        Confirmar Pagos
+      </button>
+      <button
+        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
+        data-tab="#entregas"
+      >
+        <Truck class="h-5 w-5 text-orange-500" />
+        Registrar Entregas
+      </button>
+      <div class="ml-auto flex items-center gap-2">
+        <input
+          type="text"
+          id="search"
+          placeholder="Buscar..."
+          class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+        <button
+          id="filter"
+          class="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white hover:bg-neutral-700"
+        >
+          <Search class="h-5 w-5 text-orange-500" />
+          Filtrar
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex flex-1">
+      <main class="flex-1 p-6">
+        <!-- Confirmar Pagos -->
+        <div id="pagos" class="tab-content">
+          <h2 class="text-lg font-semibold text-orange-500">Confirmar Pagos</h2>
+          <table class="w-full border-collapse text-left text-sm text-neutral-400">
+            <thead class="bg-neutral-700 text-neutral-300">
+              <tr>
+                <th class="border border-neutral-700 px-4 py-2">ID Pago</th>
+                <th class="border border-neutral-700 px-4 py-2">Cliente</th>
+                <th class="border border-neutral-700 px-4 py-2">Fecha</th>
+                <th class="border border-neutral-700 px-4 py-2">Monto</th>
+                <th class="border border-neutral-700 px-4 py-2">Estado</th>
+                <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pagosData.map((pago) => (
+                <tr class="hover:bg-neutral-700">
+                  <td class="border border-neutral-700 px-4 py-2">{pago.id}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{pago.cliente}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{pago.fecha}</td>
+                  <td class="border border-neutral-700 px-4 py-2">${pago.monto.toFixed(2)}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{pago.estado}</td>
+                  <td class="border border-neutral-700 px-4 py-2 flex gap-2">
+                    {pago.estado === "Pendiente" && (
+                      <button class="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-1 text-sm text-white hover:bg-green-600">
+                        <CheckCircle class="h-4 w-4" />
+                        Confirmar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Registrar Entregas -->
+        <div id="entregas" class="tab-content hidden">
+          <h2 class="text-lg font-semibold text-orange-500">Registrar Entregas</h2>
+          <table class="w-full border-collapse text-left text-sm text-neutral-400">
+            <thead class="bg-neutral-700 text-neutral-300">
+              <tr>
+                <th class="border border-neutral-700 px-4 py-2">ID Entrega</th>
+                <th class="border border-neutral-700 px-4 py-2">Cliente</th>
+                <th class="border border-neutral-700 px-4 py-2">Fecha</th>
+                <th class="border border-neutral-700 px-4 py-2">Estado</th>
+                <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entregasData.map((entrega) => (
+                <tr class="hover:bg-neutral-700">
+                  <td class="border border-neutral-700 px-4 py-2">{entrega.id}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{entrega.cliente}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{entrega.fecha}</td>
+                  <td class="border border-neutral-700 px-4 py-2">{entrega.estado}</td>
+                  <td class="border border-neutral-700 px-4 py-2 flex gap-2">
+                    {entrega.estado === "Pendiente" && (
+                      <button class="flex items-center gap-1 rounded-lg bg-indigo-500 px-3 py-1 text-sm text-white hover:bg-indigo-600">
+                        <Truck class="h-4 w-4" />
+                        Registrar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContents = document.querySelectorAll(".tab-content");
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+        const target = document.querySelector((btn as HTMLElement).dataset.tab ?? "");
+
+      tabContents.forEach((content) => content.classList.add("hidden"));
+      tabButtons.forEach((button) => button.classList.remove("bg-neutral-700"));
+
+      if (target) {
+        target.classList.remove("hidden");
+      }
+      btn.classList.add("bg-neutral-700");
+    });
+  });
+</script>

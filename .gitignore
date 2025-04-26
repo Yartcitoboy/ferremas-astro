@@ -3,6 +3,8 @@ dist/
 # generated types
 .astro/
 .idea/
+# basuraaa
+__pycache__/
 
 # dependencies
 node_modules/

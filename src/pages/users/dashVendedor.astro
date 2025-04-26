@@ -174,7 +174,7 @@ const despachosData = [
 
   tabButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const target = document.querySelector(btn.dataset.tab);
+      const target = document.querySelector((btn as HTMLElement).dataset.tab ?? "");
 
       tabContents.forEach((content) => content.classList.add("hidden"));
       tabButtons.forEach((button) => button.classList.remove("bg-neutral-700"));

@@ -1,0 +1,243 @@
+---
+// filepath: d:\ScrewFast\src\pages\users\dashAdmin.astro
+import { FileText, Search, Users, Download, Edit, Trash, PlusCircle, BarChart } from "@lucide/astro";
+import MainLayout from "@/layouts/MainLayout.astro";
+
+const ventasMensuales = [
+  { mes: "Enero", total: 12000 },
+  { mes: "Febrero", total: 15000 },
+  { mes: "Marzo", total: 18000 },
+];
+
+const usuariosData = [
+  { id: 1, nombre: "Juan Pérez", rol: "Vendedor", email: "juan@example.com" },
+  { id: 2, nombre: "María López", rol: "Cliente", email: "maria@example.com" },
+  { id: 3, nombre: "Carlos Rodríguez", rol: "Contador", email: "carlos@example.com" },
+  { id: 4, nombre: "Ana Fernández", rol: "Bodeguero", email: "ana@example.com" },
+];
+---
+
+<MainLayout>
+  <div class="flex min-h-screen flex-col bg-neutral-900 text-white">
+    <!-- Header -->
+    <header class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6">
+      <h1 class="text-xl font-semibold text-orange-500">Panel de Administrador</h1>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="flex items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6 py-3">
+      <button
+        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
+        data-tab="#ventas"
+      >
+        <FileText class="h-5 w-5 text-orange-500" />
+        Informes de Ventas
+      </button>
+      <button
+        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
+        data-tab="#desempeno"
+      >
+        <BarChart class="h-5 w-5 text-orange-500" />
+        Desempeño en Tienda
+      </button>
+      <button
+        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
+        data-tab="#usuarios"
+      >
+        <Users class="h-5 w-5 text-orange-500" />
+        Gestión de Usuarios
+      </button>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex flex-1">
+      <main class="flex-1 p-6">
+        <!-- Informes de Ventas -->
+        <div id="ventas" class="tab-content">
+          <h2 class="text-lg font-semibold text-orange-500">Informes de Ventas Mensuales</h2>
+          <table class="w-full border-collapse text-left text-sm text-neutral-400">
+            <thead class="bg-neutral-700 text-neutral-300">
+              <tr>
+                <th class="border border-neutral-700 px-4 py-2">Mes</th>
+                <th class="border border-neutral-700 px-4 py-2">Total Ventas</th>
+                <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ventasMensuales.map((venta) => (
+                <tr class="hover:bg-neutral-700">
+                  <td class="border border-neutral-700 px-4 py-2">{venta.mes}</td>
+                  <td class="border border-neutral-700 px-4 py-2">${venta.total.toFixed(2)}</td>
+                  <td class="border border-neutral-700 px-4 py-2">
+                    <button class="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-1 text-sm text-white hover:bg-green-600">
+                      <Download class="h-4 w-4" />
+                      Descargar Excel
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Desempeño en Tienda -->
+        <div id="desempeno" class="tab-content hidden">
+          <h2 class="text-lg font-semibold text-orange-500">Informe de Desempeño en Tienda</h2>
+          <p class="text-neutral-400">Aquí puedes generar informes de desempeño de los trabajadores.</p>
+          <button class="mt-4 flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600">
+            <BarChart class="h-5 w-5" />
+            Generar Informe
+          </button>
+        </div>
+
+        
+        <!-- Gestión de Usuarios -->
+<div id="usuarios" class="tab-content hidden">
+    <h2 class="text-lg font-semibold text-orange-500">Gestión de Usuarios</h2>
+  
+    <!-- Filtro de Usuarios -->
+    <div class="mb-6 flex items-center gap-4">
+      <input
+        type="text"
+        id="searchName"
+        placeholder="Buscar por nombre..."
+        class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+      />
+      <select
+        id="filterRole"
+        class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+      >
+        <option value="">Todos los roles</option>
+        <option value="Vendedor">Vendedor</option>
+        <option value="Cliente">Cliente</option>
+        <option value="Contador">Contador</option>
+        <option value="Bodeguero">Bodeguero</option>
+        <option value="Administrador">Administrador</option>
+      </select>
+      <button
+        id="applyFilter"
+        class="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
+      >
+        <Search class="h-5 w-5" />
+        Aplicar Filtro
+      </button>
+
+    <div class="flex-1 flex justify-end">
+      <button class="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600">
+        <PlusCircle class="h-5 w-5" />
+        Agregar Usuario
+      </button>
+    </div>
+    </div>
+  
+    <!-- Tabla de Gestión de Usuarios -->
+    <table class="w-full border-collapse text-left text-sm text-neutral-400">
+      <thead class="bg-neutral-700 text-neutral-300">
+        <tr>
+          <th class="border border-neutral-700 px-4 py-2">ID</th>
+          <th class="border border-neutral-700 px-4 py-2">Nombre</th>
+          <th class="border border-neutral-700 px-4 py-2">Rol</th>
+          <th class="border border-neutral-700 px-4 py-2">Email</th>
+          <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="userTable">
+        {usuariosData.map((usuario) => (
+          <tr class="hover:bg-neutral-700">
+            <td class="border border-neutral-700 px-4 py-2">{usuario.id}</td>
+            <td class="border border-neutral-700 px-4 py-2">{usuario.nombre}</td>
+            <td class="border border-neutral-700 px-4 py-2">{usuario.rol}</td>
+            <td class="border border-neutral-700 px-4 py-2">{usuario.email}</td>
+            <td class="border border-neutral-700 px-4 py-2 flex gap-2">
+              <button class="flex items-center gap-1 rounded-lg bg-indigo-500 px-3 py-1 text-sm text-white hover:bg-blue-600">
+                <Edit class="h-4 w-4" />
+                
+              </button>
+              <button class="flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600">
+                <Trash class="h-4 w-4" />
+                
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    
+  </div>
+      </main>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContents = document.querySelectorAll(".tab-content");
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+        const target = document.querySelector((btn as HTMLElement).dataset.tab ?? "");
+
+      tabContents.forEach((content) => content.classList.add("hidden"));
+      tabButtons.forEach((button) => button.classList.remove("bg-neutral-700"));
+
+      if (target) {
+        target.classList.remove("hidden");
+      }
+      btn.classList.add("bg-neutral-700");
+    });
+  });
+
+  const usuariosData = [
+    { id: 1, nombre: "Juan Pérez", rol: "Vendedor", email: "juan@example.com" },
+    { id: 2, nombre: "María López", rol: "Cliente", email: "maria@example.com" },
+    { id: 3, nombre: "Carlos Rodríguez", rol: "Contador", email: "carlos@example.com" },
+    { id: 4, nombre: "Ana Fernández", rol: "Bodeguero", email: "ana@example.com" },
+  ];
+
+  const searchNameInput = document.getElementById("searchName");
+  const filterRoleSelect = document.getElementById("filterRole");
+  const applyFilterButton = document.getElementById("applyFilter");
+  const userTable = document.getElementById("userTable");
+
+  if (
+    applyFilterButton &&
+    searchNameInput &&
+    filterRoleSelect &&
+    userTable
+  ) {
+    applyFilterButton.addEventListener("click", () => {
+      const searchName = (searchNameInput as HTMLInputElement).value.toLowerCase();
+      const filterRole = (filterRoleSelect as HTMLSelectElement).value;
+
+      const filteredUsers = usuariosData.filter((usuario) => {
+        const matchesName = usuario.nombre.toLowerCase().includes(searchName);
+        const matchesRole = filterRole === "" || usuario.rol === filterRole;
+        return matchesName && matchesRole;
+      });
+
+      userTable.innerHTML = filteredUsers
+        .map(
+          (usuario) => `
+          <tr class="hover:bg-neutral-700">
+            <td class="border border-neutral-700 px-4 py-2">${usuario.id}</td>
+            <td class="border border-neutral-700 px-4 py-2">${usuario.nombre}</td>
+            <td class="border border-neutral-700 px-4 py-2">${usuario.rol}</td>
+            <td class="border border-neutral-700 px-4 py-2">${usuario.email}</td>
+            <td class="border border-neutral-700 px-4 py-2 flex gap-2">
+              <button class="flex items-center gap-1 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600">
+                <Edit class="h-4 w-4" />
+                Editar
+              </button>
+              <button class="flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600">
+                <Trash class="h-4 w-4" />
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        `
+        )
+        .join("");
+    });
+  }
+
+</script>

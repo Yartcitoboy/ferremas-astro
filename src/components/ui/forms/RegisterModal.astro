@@ -8,9 +8,9 @@ import AuthBtn from "@components/ui/buttons/AuthBtn.astro";
 // Config object for customization of the component
 const config = {
   id: "hs-toggle-between-modals-register-modal", // Modal identifier
-  title: "Sign up", // Main heading
-  subTitle: "Already have an account?", // Sub-heading text
-  loginBtn: "Sign in here", // Text for login button
+  title: "Registrate", // Main heading
+  subTitle: "¿Ya tienes una cuenta?", // Sub-heading text
+  loginBtn: "Inicia sesión aquí", // Text for login button
   loginBtnDataHS: "#hs-toggle-between-modals-login-modal", // Target link for login button
 };
 ---
@@ -48,12 +48,12 @@ const config = {
           <!-- The form for user registration -->
           <div class="mt-5">
             <!-- Google signup button -->
-            <GoogleBtn title="Sign up with Google" />
+            <GoogleBtn title="Registrate con Google" />
             <!-- Dividing line with 'Or' text -->
             <div
               class="flex items-center py-3 text-xs uppercase text-neutral-400 before:me-6 before:flex-[1_1_0%] before:border-t before:border-neutral-200 after:ms-6 after:flex-[1_1_0%] after:border-t after:border-neutral-200 dark:text-neutral-500 dark:before:border-neutral-600 dark:after:border-neutral-600"
             >
-              Or
+              O
             </div>
             <!-- Registration form -->
             <form>
@@ -68,16 +68,16 @@ const config = {
                 />
                 <!-- Password confirmation input field -->
                 <PasswordInput
-                  label="Confirm Password"
+                  label="Confirmar contraseña"
                   id="confirm-password"
                   errorId="confirm-password-error"
                   content="Password does not match the password"
                 />
                 <!-- Checkbox with a label and a link for accepting the terms and conditions -->
-                <Checkbox label="I accept the " , id="terms-agree">
+                <Checkbox label="Acepto los " , id="terms-agree">
                   <a
                     class="font-medium text-orange-400 decoration-2 hover:underline dark:text-orange-400 dark:focus:outline-hidden"
-                    href="#">Terms and Conditions</a
+                    href="#">Terminos y condiciones</a
                   >
                 </Checkbox>
                 <!-- Submit button for the registration form -->
