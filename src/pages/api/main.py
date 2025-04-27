@@ -32,7 +32,7 @@ def get_usuarios():
     try:
         with get_conexion() as conexion:
             with conexion.cursor() as cursor:
-                cursor.execute("SELECT rut_bodeguero, primer_nombre, email FROM bodeguero")
+                cursor.execute("SELECT rut_vendedor, primer_nombre, email FROM vendedor")
                 rows = cursor.fetchall()
 
                 # Construir la lista de usuarios

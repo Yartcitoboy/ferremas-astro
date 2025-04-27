@@ -20,6 +20,7 @@
     "astro-compressor": "^1.0.0",
     "clipboard": "^2.0.11",
     "dotenv": "^16.5.0",
+    "express": "^5.1.0",
     "globby": "^14.1.0",
     "gsap": "^3.12.7",
     "html-minifier-terser": "^7.2.0",
