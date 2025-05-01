@@ -7,6 +7,7 @@ import { SITE } from "@data/constants";
 import "@styles/global.css";
 
 // Setting expected props
+const { isNavbarSticky = true } = Astro.props;
 const { title = SITE.title, meta, structuredData, lang = "en" } = Astro.props;
 
 // Interface to type-check the properties
@@ -15,6 +16,7 @@ interface Props {
   meta?: string;
   structuredData?: object;
   lang?: string;
+  isNavbarSticky?: boolean;
 }
 ---
 
@@ -52,7 +54,7 @@ We set the language of the page to English and add classes for scrollbar and scr
     The Navbar is placed at the top, with a slot for the main content and FooterSection at the bottom.
     -->
     <div class="mx-auto max-w-(--breakpoint-2xl) px-4 sm:px-6 lg:px-8">
-      <Navbar />
+      <Navbar isSticky={isNavbarSticky} />
       <main>
         <slot />
       </main>
@@ -75,3 +77,5 @@ We set the language of the page to English and add classes for scrollbar and scr
     </style>
   </body>
 </html>
+
+<script is:inline src="../node_modules/flyonui/flyonui.js"></script> 

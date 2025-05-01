@@ -1,6 +1,6 @@
 // index.js
 import express from "express";
-import productRoutes from "./routes/product.js"; 
+import productRoutes from "../../routers/product.js"; 
 import dotenv from "dotenv";
 
 dotenv.config();
