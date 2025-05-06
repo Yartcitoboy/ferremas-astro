@@ -3,19 +3,35 @@
 import { Package, ShoppingCart, Truck, CheckCircle, XCircle, Search } from "@lucide/astro";
 import MainLayout from "@/layouts/MainLayout.astro";
 
-// Datos iniciales vacíos
 let inventarioData: {
   id_producto: number;
+  id_pedido: number;
   nombre: string;
   categoria: string;
   stock: number;
   precio: number;
 }[] = [];
 
+let pedidosData: {
+  id_pedido: number;
+  cliente: string;
+  fecha: string;
+  total: number;
+  estado: string;
+}[] = [];
+
+let despachosData: {
+  id_despacho: number;
+  id_pedido: number;
+  fecha_envio: string;
+  direccion: string;
+  estado: string;
+}[] = [];
+
 // Función para obtener los datos de inventarios desde la API
 async function fetchInventario() {
   try {
-    const response = await fetch("http://localhost:6500/product"); // Cambia el puerto si es necesario
+    const response = await fetch("http://localhost:6500/product");
     if (!response.ok) {
       throw new Error("Error al obtener los datos de inventario");
     }
@@ -25,19 +41,51 @@ async function fetchInventario() {
   }
 }
 
+// Función para obtener los datos de pedidos desde la API
+async function fetchPedidos() {
+  try {
+    const response = await fetch("http://localhost:6500/pedido"); // Reemplaza con la URL correcta
+    if (!response.ok) {
+      throw new Error("Error al obtener los datos de pedidos");
+    }
+    pedidosData = await response.json();
+  } catch (error) {
+    console.error("Error al obtener pedidos:", error);
+  }
+}
+
+// Función para obtener los datos de despachos desde la API
+async function fetchDespachos() {
+  try {
+    const response = await fetch("http://localhost:6500/despacho"); // Reemplaza con la URL correcta
+    if (!response.ok) {
+      throw new Error("Error al obtener los datos de despachos");
+    }
+    despachosData = await response.json();
+  } catch (error) {
+    console.error("Error al obtener despachos:", error);
+  }
+}
+
 // Llama a la función para obtener los datos al cargar la página
 await fetchInventario();
+await fetchPedidos();
+await fetchDespachos();
 ---
 
 <MainLayout>
   <div class="flex min-h-screen flex-col bg-neutral-900 text-white">
-    <!-- Header -->
     <header class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6">
       <h1 class="text-xl font-semibold text-orange-500">Panel de Vendedor</h1>
     </header>
 
-    <!-- Inventario -->
-    <section class="p-6">
+    <nav class="flex border-b border-neutral-700 bg-neutral-800">
+      <button class="px-6 py-3 focus:outline-none focus:bg-neutral-700 active bg-neutral-700" data-tab="inventario">Inventario</button>
+      <button class="px-6 py-3 focus:outline-none focus:bg-neutral-700" data-tab="pedidos">Pedidos</button>
+      <button class="px-6 py-3 focus:outline-none focus:bg-neutral-700" data-tab="despachos">Despachos</button>
+    </nav>
+
+    <section id="inventario" class="p-6">
       <h2 class="text-lg font-semibold text-orange-500">Inventario</h2>
       <table class="w-full border-collapse text-left text-sm text-neutral-400">
         <thead class="bg-neutral-700 text-neutral-300">
@@ -62,5 +110,110 @@ await fetchInventario();
         </tbody>
       </table>
     </section>
+
+    <section id="pedidos" class="hidden p-6">
+      <h2 class="text-lg font-semibold text-orange-500">Pedidos</h2>
+      <table class="w-full border-collapse text-left text-sm text-neutral-400">
+        <thead class="bg-neutral-700 text-neutral-300">
+          <tr>
+            <th class="border border-neutral-700 px-4 py-2">N° Pedidos</th>
+            <th class="border border-neutral-700 px-4 py-2">Cliente</th>
+            <th class="border border-neutral-700 px-4 py-2">Fecha</th>
+            <th class="border border-neutral-700 px-4 py-2">Total</th>
+            <th class="border border-neutral-700 px-4 py-2">Estado</th>
+            <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pedidosData.map((pedido) => (
+            <tr class="hover:bg-neutral-700">
+              <td class="border border-neutral-700 px-4 py-2">{pedido.id_pedido}</td>
+              <td class="border border-neutral-700 px-4 py-2">{pedido.cliente}</td>
+              <td class="border border-neutral-700 px-4 py-2">{pedido.fecha}</td>
+              <td class="border border-neutral-700 px-4 py-2">${pedido.total}</td>
+              <td class="border border-neutral-700 px-4 py-2">{pedido.estado}</td>
+              <td class="border border-neutral-700 px-4 py-2"></td> {/* Aquí podrías agregar botones de acción */}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+
+    <section id="despachos" class="hidden p-6">
+      <h2 class="text-lg font-semibold text-orange-500">Despachos</h2>
+      <table class="w-full border-collapse text-left text-sm text-neutral-400">
+        <thead class="bg-neutral-700 text-neutral-300">
+          <tr>
+            <th class="border border-neutral-700 px-4 py-2">N° Despacho</th>
+            <th class="border border-neutral-700 px-4 py-2">N° Pedido</th>
+            <th class="border border-neutral-700 px-4 py-2">Fecha de Envío</th>
+            <th class="border border-neutral-700 px-4 py-2">Dirección</th>
+            <th class="border border-neutral-700 px-4 py-2">Estado</th>
+            <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {despachosData.map((despacho) => (
+            <tr class="hover:bg-neutral-700">
+              <td class="border border-neutral-700 px-4 py-2">{despacho.id_despacho}</td>
+              <td class="border border-neutral-700 px-4 py-2">{despacho.id_pedido}</td>
+              <td class="border border-neutral-700 px-4 py-2">{despacho.fecha_envio}</td>
+              <td class="border border-neutral-700 px-4 py-2">{despacho.direccion}</td>
+              <td class="border border-neutral-700 px-4 py-2">{despacho.estado}</td>
+              <td class="border border-neutral-700 px-4 py-2"></td> {/* Aquí podrías agregar botones de acción */}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
   </div>
+
+  <script type="module">
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabs = document.querySelectorAll('[data-tab]');
+      const sections = {
+        inventario: document.getElementById('inventario'),
+        pedidos: document.getElementById('pedidos'),
+        despachos: document.getElementById('despachos'),
+      };
+
+      if (!sections.inventario || !sections.pedidos || !sections.despachos) {
+        console.error('Una o más secciones no se encontraron en el DOM.');
+        return;
+      }
+
+      // Mostrar la primera sección por defecto
+      sections.inventario.classList.remove('hidden');
+      tabs.forEach(tab => {
+        if (tab.dataset.tab === 'inventario') {
+          tab.classList.add('active', 'bg-neutral-700');
+        } else {
+          tab.classList.remove('active', 'bg-neutral-700');
+        }
+      });
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab;
+          if (!target) return;
+
+          // Ocultar todas las secciones
+          Object.values(sections).forEach(section => {
+            if (section) section.classList.add('hidden');
+          });
+
+          // Mostrar la sección activa
+          if (sections[target]) {
+            sections[target].classList.remove('hidden');
+          }
+
+          // Actualizar la clase activa de los botones
+          tabs.forEach(t => {
+            t.classList.remove('active', 'bg-neutral-700');
+          });
+          tab.classList.add('active', 'bg-neutral-700');
+        });
+      });
+    });
+  </script>
 </MainLayout>
