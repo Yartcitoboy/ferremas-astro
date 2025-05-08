@@ -5,6 +5,15 @@ import PasswordInput from "./input/PasswordInput.astro";
 import Checkbox from "./input/Checkbox.astro";
 import GoogleBtn from "@components/ui/buttons/GoogleBtn.astro";
 import AuthBtn from "@components/ui/buttons/AuthBtn.astro";
+//form isa
+import NombreApellidoInput from "./camposInput/NombreApellidoInput.astro";
+import RutInput from "./camposInput/RutInput.astro";
+import DireccionInput from "./camposInput/DireccionInput.astro";
+import TelefonoInput from "./camposInput/TelefonoInput.astro";
+import FechaNacimientoInput from "./camposInput/FechaNacimientoInput.astro";
+import GeneroInput from "./camposInput/GeneroInput.astro";
+
+
 // Config object for customization of the component
 const config = {
   id: "hs-toggle-between-modals-register-modal", // Modal identifier
@@ -13,6 +22,7 @@ const config = {
   loginBtn: "Inicia sesión aquí", // Text for login button
   loginBtnDataHS: "#hs-toggle-between-modals-login-modal", // Target link for login button
 };
+
 ---
 
 <!-- Root element of the registration modal with the id and styling -->
@@ -56,8 +66,39 @@ const config = {
               O
             </div>
             <!-- Registration form -->
-            <form>
+            <form method="post">
               <div class="grid gap-y-4">
+                <!-- mio -->
+                <NombreApellidoInput
+                  id="register-name"
+                  errorId="register-name-error"
+                  label="Nombre y Apellido"
+                />
+                <RutInput
+                  id="register-rut"
+                  errorId="register-rut-error"
+                  label="Rut"
+                />
+                <DireccionInput
+                  id="register-address"
+                  errorId="register-address-error"
+                  label="Dirección"
+                />
+                <TelefonoInput
+                  id="register-phone"
+                  errorId="register-phone-error"
+                  label="Teléfono"
+                />
+                <FechaNacimientoInput
+                  id="register-birthdate"
+                  errorId="register-birthdate-error"
+                  label="Fecha de Nacimiento"
+                />
+                <GeneroInput
+                  id="register"
+                  errorId="register-gender-error"
+                  label="Género"
+                />
                 <!-- Email input field -->
                 <EmailInput id="register-email" errorId="register-email-error"/>
                 <!-- Password input field -->
