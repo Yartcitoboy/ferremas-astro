@@ -1,27 +1,25 @@
 // routes/product.js
 import express from "express";
-import oracledb from "oracledb";
+import { getConnection } from "../src/lib/index.js"; // Asegúrate de que la ruta sea correcta
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const router = express.Router();
+const API_KEY = process.env.API_KEY;
 
-async function getConnection() {
-    try {
-        return await oracledb.getConnection({
-            user: "ferre",
-            password: "ferre",
-            connectString: "localhost:1521/xe"
-        });
-    } catch (e) {
-        console.error("Error al conectar con oracle:", e);
-        throw new Error("Error al conectar con oracle");
+
+// Middleware para validar la API KEY
+function validarApiKey(req, res, next){
+    const apiKey = req.headers['x-api-key']
+    if(!apiKey || apiKey !== API_KEY){
+        return res.status(401).json({error: "API KEY incorrecta o no entregada"})
     }
+    next()
 }
 
 // Método GET para obtener productos
-router.get("/", async (req, res) => {
+router.get("/" ,validarApiKey,async (req, res) => {
     let cone;
     try {
         cone = await getConnection();
@@ -54,11 +52,11 @@ router.get("/", async (req, res) => {
     } catch (ex) {
         res.status(500).json({ error: ex.message });
     } finally {
-        if (connection) {
+        if (cone) {
             try {
-                await connection.close();
+                await cone.close();
             } catch (err) {
-                console.error("Error closing connection:", err);
+                console.error("Error al cerrar la conexión:", err);
             }
         }
     }
