@@ -2,6 +2,7 @@ from fastapi import FastAPI
 # from routers import product
 from routers import usuarios
 
+
 app = FastAPI(
     title="API de gestión de usuarios",
     version="1.0.0",

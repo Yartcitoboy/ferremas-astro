@@ -22,7 +22,7 @@ def obtener_usuarios():
                 u.telefono,
                 u.email,
                 u.fecha_nacimiento,
-                r.nombre_rol
+                r.nombre_rol,
                 g.nombre
             FROM 
                 usuario u
