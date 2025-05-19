@@ -21,8 +21,8 @@ importers:
         specifier: ^0.33.2
         version: 0.33.2(astro@5.7.2(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.0)(terser@5.39.0)(typescript@5.8.3)(yaml@2.7.1))
       '@lucide/astro':
-        specifier: ^0.488.0
-        version: 0.488.0(astro@5.7.2(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.0)(terser@5.39.0)(typescript@5.8.3)(yaml@2.7.1))
+        specifier: ^0.511.0
+        version: 0.511.0(astro@5.7.2(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.0)(terser@5.39.0)(typescript@5.8.3)(yaml@2.7.1))
       '@tabler/icons-vue':
         specifier: ^3.33.0
         version: 3.33.0(vue@3.5.14(typescript@5.8.3))
@@ -675,8 +675,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@lucide/astro@0.488.0':
-    resolution: {integrity: sha512-kJ9kpHr8khwpOmbYKtWrRwB563Gu6RIv94QAbMJ60f5NSIoxcWkV4nijjijFeE24EJ/mXiGQZO4p9P5S+E5iSg==}
+  '@lucide/astro@0.511.0':
+    resolution: {integrity: sha512-Qq3WAQVyL+mMSl8UYJJdfIbhfO/tskRRDWilZcwxazhd+e99KfSbxS1q0xjrCIUN4VFD8W/BCcNasChJqQv/8A==}
     peerDependencies:
       astro: ^4 || ^5
 
@@ -4032,7 +4032,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@lucide/astro@0.488.0(astro@5.7.2(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.0)(terser@5.39.0)(typescript@5.8.3)(yaml@2.7.1))':
+  '@lucide/astro@0.511.0(astro@5.7.2(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.0)(terser@5.39.0)(typescript@5.8.3)(yaml@2.7.1))':
     dependencies:
       astro: 5.7.2(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.0)(terser@5.39.0)(typescript@5.8.3)(yaml@2.7.1)
 
