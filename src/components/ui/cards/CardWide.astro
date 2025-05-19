@@ -1,10 +1,6 @@
 ---
 // Import necessary modules and utilities
-import { Image } from "astro:assets";
 import Icon from "@components/ui/icons/Icon.astro";
-
-const { product } = Astro.props;
-
 interface Props {
   product: {
     id_producto: string;
@@ -12,9 +8,11 @@ interface Props {
     categoria: string;
     stock: number;
     precio: number;
-    
+    imagen: string;
   };
 }
+
+const { product } = Astro.props;
 
 // Define classes to be used with the Image component
 const imageClass =
@@ -30,7 +28,7 @@ const imageClass =
   <!-- The product's main image -->
   <div
     class={imageClass}
-    style={`background-image: url('/path/to/image/${product.id_producto}.jpg');`}
+    style={`background-image: url('${product.imagen}');`}
   ></div>
   <!-- An overlay gradient that sits on top of the product image-->
   <div

@@ -1,29 +1,22 @@
 ---
 // Import necessary modules and utilities
-import { Image } from "astro:assets";
 import Icon from "@components/ui/icons/Icon.astro";
 
 const { product } = Astro.props;
+console.log("CardSmall recibió el producto:", product);
 ---
 
 <a
   href={`/products/${product.id_producto}`}
-  class="group relative flex h-48 items-end overflow-hidden rounded-xl shadow-lg outline-hidden ring-zinc-500 focus-visible:ring-3 dark:ring-zinc-200 dark:focus:outline-hidden md:h-80"
+  class="group relative flex h-48 items-end overflow-hidden rounded-xl shadow-lg md:h-80"
 >
-  {product.main?.imgCard ? (
-    <img
-      src={product.main.imgCard}
-      alt={product.main.imgAlt || "Imagen del producto"}
-      class="absolute inset-0 h-full w-full object-cover object-center transition duration-[600ms] ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:scale-110"
-    />
-  ) : (
-    <div class="absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500">
-      Imagen no disponible
-    </div>
-  )}
-  <span
-    class="relative mb-3 ml-4 inline-block text-sm font-bold text-neutral-50 transition duration-[600ms] ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:scale-110 md:ml-5 md:text-lg"
-  >
-    {product.title || "Producto sin título"} <Icon name="openInNew" />
+  <img
+    src={product.imagen}
+    alt={product.nombre || "Imagen del producto"}
+    class="absolute inset-0 h-full w-full object-cover object-center transition duration-500 ease-in-out group-hover:scale-110"
+  />
+  <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-50"></div>
+  <span class="relative mb-3 ml-4 text-sm font-bold text-white md:text-lg">
+    {product.nombre || "Producto sin título"} <Icon name="openInNew" />
   </span>
 </a>

@@ -1,13 +1,32 @@
 ---
-// Importa los componentes necesarios
 import MainLayout from "@/layouts/MainLayout.astro";
-import { getCollection } from "astro:content";
+import { SITE } from "@data/constants";
 
-// Obtén el parámetro dinámico `id` de la URL
+declare global {
+  interface Window {
+    gsap: any;
+  }
+}
+
+
+export async function getStaticPaths() {
+  const response = await fetch("http://localhost:6500/product", {
+    headers: {
+      "x-api-key": "miclaveultrasecreta123."
+    }
+  });
+
+  const products = await response.json();
+
+  return products.map((product: any) => ({
+    params: { id: String(product.id_producto) }
+  }));
+}
+
 const { id } = Astro.params;
+const defaultImg = "/imagen_no_disponible.svg.png";
 
-// Carga los datos del producto desde la API
-const response = await fetch(`http://localhost:8000/product/${id}`, {
+const response = await fetch(`http://localhost:6500/product/${id}`, {
   headers: {
     "x-api-key": "miclaveultrasecreta123."
   }
@@ -17,61 +36,376 @@ if (!response.ok) {
   throw new Error("Error al obtener los datos del producto");
 }
 
-export async function getStaticPaths() {
-  const productEntries = await getCollection("products", ({ id }) =>
-    id.startsWith("en/")
-  );
-  return productEntries.map((product) => {
-    const idWithoutLang = product.id.replace(/^en\//, ""); // Remove the "en/" prefix
-    return {
-      params: { id: idWithoutLang },
-      props: { product },
-    };
-  });
-}
+const data = await response.json();
 
-const product = await response.json();
+// Mapear la estructura del producto al formato deseado
+const product = {
+  title: data.nombre || "Producto sin título",
+  description: data.descripcion || "Sin descripción",
+  main: {
+    id: data.id_producto,
+    content: data.descripcion,
+    imgCard: data.imagen || defaultImg,
+    imgMain: data.imagen || defaultImg,
+    imgAlt: `Imagen de ${data.nombre}`
+  },
+  tabs: [
+    { id: "tabs-with-card-item-1", dataTab: "#tabs-with-card-1", title: "Descripción" },
+    { id: "tabs-with-card-item-2", dataTab: "#tabs-with-card-2", title: "Especificaciones" },
+    
+  ],
+  longDescription: {
+    title: "Detalles del producto",
+    subTitle: data.descripcion,
+    btnTitle: "Contáctanos para más información",
+    btnURL: "#"
+  },
+  descriptionList: [
+    { title: "Precio", subTitle: `$${data.precio}` },
+    { title: "Stock", subTitle: `${data.stock} unidades` },
+    { title: "Marca", subTitle: data.marca || "No especificada" },
+    { title: "Categoría", subTitle: data.categoria || "General" }
+  ],
+  specificationsLeft: [
+    { title: "ID Producto", subTitle: String(data.id_producto) },
+    { title: "Código", subTitle: data.codigo || "N/A" },
+    { title: "Precio", subTitle: `$${data.precio}` },
+    { title: "Stock", subTitle: `${data.stock} unidades` }
+  ],
+  // specificationsRight: [], // No hay datos directos para esto
+  tableData: [
+    { feature: ["Atributo", "Valor"], description: [
+      ["Nombre", data.nombre],
+      ["Marca", data.marca],
+      ["Categoría", data.categoria],
+      ["Stock", String(data.stock)]
+    ]}
+  ],
+  
+};
+
+const pageTitle: string = `${product.title} | ${SITE.title}`;
+const metaDescription = product.description;
+const ogTitle = `${product.title} | Hardware Tools | ScrewFast`; // Ajustar si es necesario
 ---
 
-<MainLayout title={product.title || "Producto no encontrado"}>
-  <div class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full">
-    <div class="mb-4 flex items-center justify-between gap-8 sm:mb-8 md:mb-12">
-      <h1 class="text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-200 md:text-4xl">
-        {product.title || "Producto no encontrado"}
-      </h1>
+<MainLayout
+  title={pageTitle}
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `https://screwfast.uk/products/${product.title.toLowerCase().replace(/\s+/g, "-")}`, // Ajustar URL base
+    name: product.title,
+    description: product.description,
+    brand: {
+      "@type": "Brand",
+      name: "ScrewFast", // Ajustar si tienes la marca específica
+    },
+  }}
+>
+  <div id="overlay" class="fixed inset-0 bg-neutral-200 dark:bg-neutral-800">
+  </div>
+
+  <section
+    class="mx-auto flex max-w-[85rem] flex-col px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full"
+  >
+    <div>
+      <p
+        id="fadeText"
+        class="mb-8 max-w-prose font-light text-pretty text-neutral-700 sm:text-xl dark:text-neutral-300"
+      >
+        {product.main.content}
+      </p>
     </div>
+    <div
+      class="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0"
+    >
+      <div id="fadeInUp">
+        <h1
+          class="block text-4xl font-bold tracking-tighter text-neutral-800 sm:text-5xl md:text-6xl lg:text-7xl dark:text-neutral-200"
+        >
+          {product.title}
+        </h1>
+        <p class="text-lg text-neutral-600 dark:text-neutral-400">
+          {product.description}
+        </p>
+      </div>
+      <div>
+        <img
+          id="fadeInMoveRight"
+          src={product.main.imgMain}
+          class="w-[600px] object-contain"
+          alt={product.main.imgAlt}
+          loading={"eager"}
+        />
+      </div>
+    </div>
+  </section>
 
-    <!-- Imagen principal del producto -->
-    {product.main?.imgMain ? (
-      <img src={product.main.imgMain} alt={product.main.imgAlt || "Imagen del producto"} class="w-full rounded-lg" />
-    ) : (
-      <p class="text-neutral-600 dark:text-neutral-400">Imagen no disponible</p>
-    )}
+  <div class="mx-auto max-w-[85rem] px-4 pt-10 sm:px-6 lg:px-8 lg:pt-14">
+    <nav
+      class="mx-auto grid max-w-6xl gap-y-px sm:flex sm:gap-x-4 sm:gap-y-0"
+      aria-label="Tabs"
+      role="tablist"
+    >
+      {
+        product.tabs.map((tab, index) => (
+          <button
+            class={`group relative overflow-hidden py-3 text-sm font-medium text-neutral-800 focus:z-10 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:text-neutral-200 ${index === 0 ? 'bg-neutral-100 dark:bg-white/[.05]' : ''}`}
+            id={tab.id}
+            data-target={tab.dataTab}
+            role="tab"
+            aria-selected={index === 0}
+            aria-controls={tab.dataTab.substring(1)}
+          >
+            <span class={`block transition-colors group-hover:text-orange-400 dark:group-hover:text-orange-300 ${index === 0 ? 'text-orange-400 dark:text-orange-300' : ''}`}>{tab.title}</span>
+            {index === 0 && <span class="absolute inset-x-0 bottom-0 h-px bg-orange-400 dark:bg-orange-300"></span>}
+          </button>
+        ))
+      }
+    </nav>
 
-    <!-- Descripción del producto -->
-    <section class="mt-8">
-      <h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-200">Descripción</h2>
-      <p class="mt-4 text-neutral-600 dark:text-neutral-400">{product.main?.content || "Descripción no disponible"}</p>
-    </section>
+    <div class="mt-12 md:mt-16">
+      <div id="tabs-with-card-1" role="tabpanel">
+        <div class="mx-auto max-w-[85rem] px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
+          <div class="grid gap-12 md:grid-cols-2">
+            <div class="lg:w-3/4">
+              <h2
+                class="text-3xl font-bold tracking-tight text-balance text-neutral-800 md:leading-tight lg:text-4xl dark:text-neutral-200"
+              >
+                {product.longDescription.title}
+              </h2>
+              <p
+                class="mt-3 text-pretty text-neutral-600 dark:text-neutral-400"
+              >
+                {product.longDescription.subTitle}
+              </p>
+              <p class="mt-5">
+                <a href={product.longDescription.btnURL} class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400 focus-visible:ring-blue-400">
+                  {product.longDescription.btnTitle}
+                </a>
+              </p>
+            </div>
 
-    <!-- Especificaciones -->
-    <section class="mt-8">
-      <h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-200">Especificaciones</h2>
-      {product.specificationsLeft ? (
-        <ul class="mt-4 space-y-2">
-          {product.specificationsLeft.map((spec: { title: string; subTitle: string }) => (
-            <li>
-              <strong>{spec.title}:</strong> {spec.subTitle}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="text-neutral-600 dark:text-neutral-400">Especificaciones no disponibles</p>
-      )}
-    </section>
+            <div class="space-y-6 lg:space-y-10">
+              {product.descriptionList.map((list) => (
+                <div class="flex">
+                  <div>
+                    <h3 class="text-base font-bold text-neutral-800 sm:text-lg dark:text-neutral-200">
+                      {list.title}
+                    </h3>
+                    <p class="mt-1 text-neutral-600 dark:text-neutral-400">
+                      {list.subTitle}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tabs-with-card-2" class="hidden" role="tabpanel">
+        <div class="mx-auto max-w-[85rem] px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
+          <div class="grid w-full grid-cols-1 gap-x-16 md:grid-cols-2">
+            <div class="max-w-md space-y-6">
+              {product.specificationsLeft.map((spec) => (
+                <div>
+                  <h3 class="block font-bold text-neutral-800 dark:text-neutral-200">
+                    {spec.title}
+                  </h3>
+                  <p class="text-neutral-600 dark:text-neutral-400">
+                    {spec.subTitle}
+                  </p>
+                </div>
+              ))}
+            </div>
+            {product.tableData ? (
+              <div class="mt-6 space-y-6 md:mt-0 md:ml-auto">
+                <div class="flex flex-col">
+                  <div class="-m-1.5 overflow-x-auto">
+                    <div class="inline-block min-w-full p-1.5 align-middle">
+                      <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-neutral-300 dark:divide-neutral-700">
+                          <thead>
+                            <tr>
+                              {product.tableData[0]?.feature?.map(
+                                (header) => (
+                                  <th
+                                    scope="col"
+                                    class="px-6 py-3 text-start text-xs font-medium text-neutral-500 uppercase dark:text-neutral-500"
+                                  >
+                                    {header}
+                                  </th>
+                                )
+                              )}
+                            </tr>
+                          </thead>
+                          <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
+                            {product.tableData?.map((row) =>
+                              row.description.map((rowData, index) => (
+                                <tr>
+                                  {rowData.map((cellValue, i) => (
+                                    <td class="px-6 py-4 text-sm font-medium whitespace-nowrap text-neutral-600 dark:text-neutral-400">
+                                      {cellValue}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      
+    </div>
   </div>
 </MainLayout>
 
----
+<script>
+  import { gsap } from "gsap";
 
+  type AnimationSettings = {
+    autoAlpha?: number;
+    y?: number;
+    x?: number;
+    willChange?: string;
+  };
 
+  function setElementAnimationDefaults(
+    id: string,
+    settings: AnimationSettings
+  ) {
+    gsap.set(id, settings);
+  }
+
+  setElementAnimationDefaults("#fadeText", {
+    autoAlpha: 0,
+    y: 50,
+    willChange: "transform, opacity",
+  });
+
+  setElementAnimationDefaults("#fadeInUp", {
+    autoAlpha: 0,
+    y: 50,
+    willChange: "transform, opacity",
+  });
+
+  setElementAnimationDefaults("#fadeInMoveRight", {
+    autoAlpha: 0,
+    x: 300,
+    willChange: "transform, opacity",
+  });
+
+  let timeline = gsap.timeline({ defaults: { overwrite: "auto" } });
+
+  timeline.to("#fadeText", {
+    duration: 1.5,
+    autoAlpha: 1,
+    y: 0,
+    delay: 1,
+    ease: "power2.out",
+  });
+
+  timeline.to(
+    "#fadeInUp",
+    { duration: 1.5, autoAlpha: 1, y: 0, ease: "power2.out" },
+    "-=1.2"
+  );
+
+  timeline.to(
+    "#fadeInMoveRight",
+    { duration: 1.5, autoAlpha: 1, x: 0, ease: "power2.inOut" },
+    "-=1.4"
+  );
+
+  timeline.to("#overlay", { duration: 1, autoAlpha: 0, delay: 0.2 });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function setButtonInactive(btn: any, activeButton: any) {
+      if (btn !== activeButton) {
+        btn.classList.remove(
+          "active",
+          "bg-neutral-100",
+          "hover:border-transparent",
+          "dark:bg-white/[.05]"
+        );
+
+        const tabId = btn.getAttribute("data-target");
+        if (tabId) {
+          const contentElement = document.querySelector(tabId);
+          if (contentElement) {
+            contentElement.classList.add("hidden");
+          }
+        }
+
+        changeHeadingStyle(
+          btn,
+          ["text-neutral-800", "dark:text-orange-400", "dark:text-orange-300"],
+          []
+        );
+      }
+    }
+
+    function activateButton(button: any) {
+      button.classList.add(
+        "active",
+        "bg-neutral-100",
+        ",hover:border-transparent",
+        "dark:bg-white/[.05]"
+      );
+
+      const tabId = button.getAttribute("data-target");
+      if (tabId) {
+        const contentElementToShow = document.querySelector(tabId);
+        if (contentElementToShow) {
+          contentElementToShow.classList.remove("hidden");
+        }
+      }
+
+      changeHeadingStyle(
+        button,
+        ["text-orange-400", "dark:text-orange-300"],
+        ["text-neutral-800", "dark:text-neutral-200"]
+      );
+    }
+
+    function changeHeadingStyle(
+      button: any,
+      addClasses: any,
+      removeClasses: any
+    ) {
+      let heading = button.querySelector("span");
+      if (heading) {
+        heading.classList.remove(...removeClasses);
+        heading.classList.add(...addClasses);
+      }
+    }
+
+    const tabButtons = document.querySelectorAll("[data-target]");
+
+    if (tabButtons.length > 0) {
+      changeHeadingStyle(
+        tabButtons[0],
+        ["text-orange-400", "dark:text-orange-300"],
+        []
+      );
+    }
+
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        tabButtons.forEach((btn) => setButtonInactive(btn, button));
+        activateButton(button);
+      });
+    });
+  });
+</script>
