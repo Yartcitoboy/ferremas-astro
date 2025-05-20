@@ -10,9 +10,10 @@ declare global {
 
 
 export async function getStaticPaths() {
-  const response = await fetch("http://localhost:6500/product", {
+  const response = await fetch(`http://localhost:6500/product`, {
     headers: {
-      "x-api-key": "miclaveultrasecreta123."
+      "x-api-key":"miclaveultrasecreta123."
+
     }
   });
 

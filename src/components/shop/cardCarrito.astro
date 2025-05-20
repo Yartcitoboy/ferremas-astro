@@ -1,0 +1,80 @@
+<section id="cart-section" class="fixed top-8 right-0 w-96 bg-white shadow-lg z-50 p-6 hidden transition-transform duration-500">  
+    <h2 class="text-xl font-bold mb-4">Carrito</h2>
+    <div id="cart-items"></div>
+    <div class="mt-4">
+        <strong>Total: $<span id="cart-total">0</span></strong>
+        <button id="clear-cart" class="ml-4 px-3 py-1 bg-red-500 text-white rounded">Vaciar</button>
+    </div>
+</section>
+
+
+<script is:inline>
+  // Carrito en memoria
+  let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+  function saveCart() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartUI();
+  }
+
+  function addToCart(product) {
+    const found = cart.find(item => item.id_producto === product.id_producto);
+    if (found) {
+      found.qty += 1;
+    } else {
+      cart.push({ ...product, qty: 1 });
+    }
+    saveCart();
+    animateCart();
+  }
+
+  function removeFromCart(id) {
+    cart = cart.filter(item => item.id_producto !== id);
+    saveCart();
+  }
+
+  function clearCart() {
+    cart = [];
+    saveCart();
+  }
+
+  function updateCartUI() {
+    const cartItems = document.getElementById("cart-items");
+    const cartCount = document.getElementById("cart-count");
+    const cartTotal = document.getElementById("cart-total");
+    if (!cartItems) return;
+    cartItems.innerHTML = cart.length
+      ? cart.map(item => `
+        <div class="flex justify-between items-center mb-2">
+          <span>${item.nombre} x${item.qty}</span>
+          <span>$${item.precio * item.qty}</span>
+          <button onclick="removeFromCart('${item.id_producto}')" class="text-red-500">🗑️</button>
+        </div>
+      `).join("")
+      : "<em>El carrito está vacío</em>";
+    cartCount.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+    cartTotal.textContent = cart.reduce((sum, item) => sum + item.precio * item.qty, 0);
+  }
+
+  function animateCart() {
+    const btn = document.getElementById("open-cart");
+    if (btn) {
+      btn.classList.add("animate-bounce");
+      setTimeout(() => btn.classList.remove("animate-bounce"), 500);
+    }
+  }
+
+  // Mostrar/ocultar carrito
+  document.getElementById("open-cart").onclick = () => {
+    document.getElementById("cart-section").classList.toggle("hidden");
+    // Puedes animar con GSAP aquí si quieres
+  };
+  document.getElementById("clear-cart").onclick = () => clearCart();
+
+  // Exponer funciones globalmente para los botones
+  window.addToCart = addToCart;
+  window.removeFromCart = id => removeFromCart(id);
+
+  // Inicializar UI
+  updateCartUI();
+</script>

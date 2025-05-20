@@ -9,6 +9,7 @@ import BrandLogo from "@components/BrandLogo.astro";
 
 
 
+
 // Select the correct translation based on the page's lang prop:
 const strings = Astro.currentLocale === "fr" ? frStrings : enStrings;
 const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
@@ -93,6 +94,8 @@ const {isSticky = true} = Astro.props;
         ))}
 
         <Authentication />
+
+        
 
         <span class="hidden md:inline-block">
           <ThemeIcon />

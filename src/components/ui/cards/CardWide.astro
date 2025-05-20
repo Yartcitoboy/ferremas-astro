@@ -1,10 +1,11 @@
 ---
-// Import necessary modules and utilities
+// filepath: d:\ScrewFast\src\components\ui\cards\CardWide.astro
 import Icon from "@components/ui/icons/Icon.astro";
 interface Props {
   product: {
     id_producto: string;
     nombre: string;
+    descripcion?: string;
     categoria: string;
     stock: number;
     precio: number;
@@ -13,31 +14,38 @@ interface Props {
 }
 
 const { product } = Astro.props;
-
-// Define classes to be used with the Image component
-const imageClass =
-  "absolute inset-0 h-full w-full object-cover object-center transition duration-[600ms] ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:scale-110";
 ---
 
-<!-- A clickable card that leads to the details of the product-->
-<a
-  href={`/products/${product.id_producto}`}
-  data-astro-prefetch
-  class="group relative flex h-48 items-end overflow-hidden rounded-xl shadow-lg outline-hidden ring-zinc-500 focus-visible:ring-3 dark:ring-zinc-200 dark:focus:outline-hidden md:h-80"
->
-  <!-- The product's main image -->
-  <div
-    class={imageClass}
-    style={`background-image: url('${product.imagen}');`}
-  ></div>
-  <!-- An overlay gradient that sits on top of the product image-->
-  <div
-    class="pointer-events-none absolute inset-0 bg-linear-to-t from-neutral-800 via-transparent to-transparent opacity-50"
-  >
+<div class="flex flex-col bg-white rounded-xl shadow-lg overflow-hidden h-full">
+  <!-- Imagen arriba -->
+  <a href={`/products/${product.id_producto}`} data-astro-prefetch class="block">
+    <img
+      src={product.imagen}
+      alt={product.nombre || "Imagen del producto"}
+      class="w-full h-40 object-cover object-center"
+    />
+  </a>
+  <!-- Contenido abajo -->
+  <div class="flex flex-col flex-1 p-4">
+    <!-- Nombre -->
+    <a href={`/products/${product.id_producto}`} data-astro-prefetch>
+      <h3 class="text-lg font-bold text-neutral-800 flex items-center gap-2">
+        {product.nombre}
+        <Icon name="openInNew" />
+      </h3>
+    </a>
+    <!-- Descripción -->
+    <p class="mt-2 text-neutral-600 text-sm flex-1">{product.descripcion || "Sin descripción"}</p>
+    <!-- Precio y botón -->
+    <div class="mt-4 flex items-center justify-between">
+      <span class="text-xl font-bold text-green-700">${product.precio}</span>
+      <button
+        type="button"
+        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+        onclick={`window.addToCart(${JSON.stringify(product)})`}
+      >
+        Comprar ahora
+      </button>
+    </div>
   </div>
-  <!-- The product's subtitle and the anchor SVG icon-->
-  <span
-    class="relative mb-3 ml-4 inline-block text-sm font-bold text-neutral-50 transition duration-[600ms] ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:scale-110 md:ml-5 md:text-lg"
-    >{product.nombre} <Icon name="openInNew" />
-  </span>
-</a>
+</div>
