@@ -9,11 +9,11 @@ import GoogleBtn from "@components/ui/buttons/GoogleBtn.astro";
 // Variables for customization of the LoginModal Component
 
 const config = {
-  id: "hs-toggle-between-modals-login-modal", // Modal IDENTIFIER
-  title: "Iniciar Sesión", // Main HEADING
-  subTitle: "¿Aún no tienes cuenta?", // Sub-Heading TEXT
-  registerBtn: "Regístrate aquí", // Text for REGISTRATION BUTTON
-  registerBtnDataHS: "#hs-toggle-between-modals-register-modal", // TARGET LINK for registration button
+  id: "hs-toggle-between-modals-login-modal",
+  title: "Iniciar Sesión",
+  subTitle: "¿Aún no tienes cuenta?",
+  registerBtn: "Regístrate aquí",
+  registerBtnDataHS: "#hs-toggle-between-modals-register-modal",
 };
 ---
 
@@ -53,22 +53,17 @@ const config = {
             >
               O
             </div>
-            <!-- The container for the form -->
-            <form>
-              <!-- A grid layout for the form fields -->
+            <form id="loginForm">
               <div class="grid gap-y-4">
-                <!-- The email input field -->
-                <EmailInput id="login-email" errorId="login-email-error" />
-                <!-- The password input field -->
+                <EmailInput id="login-email" errorId="login-email-error" name="username" />
                 <PasswordInput
                   forgot={true}
                   id="password"
                   errorId="login-password-error"
                   content="8+ characters required"
+                  name="password"
                 />
-                <!-- The remember-me checkbox -->
                 <Checkbox id="remember-me" />
-                <!-- The sign-in button -->
                 <AuthBtn title="Acceder" />
               </div>
             </form>
@@ -78,3 +73,66 @@ const config = {
     </div>
   </div>
 </div>
+
+<script>
+  const loginForm = document.getElementById('loginForm') as HTMLFormElement;
+  loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(loginForm);
+    const email = formData.get('email');
+    const password = formData.get('contrasena');
+
+    console.log('Email:', email);
+    console.log('Password:', password);
+
+    const body = new URLSearchParams(formData as any).toString();
+    console.log('Cuerpo de la petición:', body);
+
+    try {
+      const response = await fetch('http://localhost:8000/usuarios_auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: body,
+      });
+
+      console.log('Estado de la respuesta:', response.status);
+      const data = await response.json();
+      console.log('Respuesta del servidor (raw):', JSON.stringify(data, null, 2));
+
+      if (response.ok) {
+        localStorage.setItem('accessToken', data.access_token);
+        console.log('Token guardado:', data.access_token);
+        try {
+          const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]));
+          console.log('Payload del token:', tokenPayload); // <-- Añadimos este log ANTES de extraer el rol
+          const userRole = tokenPayload.role;
+          console.log('Rol del usuario:', userRole);
+
+          if (userRole === 'Administrador') {
+            window.location.href = '/users/dashAdmin';
+          } else if (userRole === 'Bodeguero') {
+            window.location.href = '/users/dashBodeguero';
+          } else if (userRole === 'Vendedor') {
+            window.location.href = '/users/dashVendedor';
+          } else if (userRole === 'Contador') {
+            window.location.href = '/users/dashContador';
+          } else {
+            window.location.href = '/'; // Página por defecto
+          }
+        } catch (error) {
+          console.error('Error al decodificar el token:', error);
+          alert('Error al procesar la respuesta del login.');
+        }
+      } else {
+        console.error('Error al iniciar sesión:', data.detail);
+        alert('Error al iniciar sesión.');
+      }
+    } catch (error) {
+      console.error('Hubo un error al comunicarse con el servidor:', error);
+      alert('Error de conexión.');
+    }
+  });
+</script>

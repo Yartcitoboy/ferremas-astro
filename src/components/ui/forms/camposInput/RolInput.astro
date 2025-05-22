@@ -1,0 +1,9 @@
+---
+interface Props {
+  value?: string;
+}
+
+const { value = "5" } = Astro.props; // Por defecto, rol cliente = 5
+---
+
+<input type="hidden" name="id_rol" value={value} />

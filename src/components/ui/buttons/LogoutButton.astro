@@ -1,0 +1,11 @@
+<button onclick="logout()" class="ml-4 rounded-md bg-red-500 px-3 py-2 text-white">
+  Cerrar Sesión
+</button>
+
+<script>
+  function logout() {
+    localStorage.removeItem('accessToken');
+    window.location.href = '/'; // Redirigir a la página de inicio
+    // O window.location.href = '/login'; si tienes una página de login dedicada
+  }
+</script>

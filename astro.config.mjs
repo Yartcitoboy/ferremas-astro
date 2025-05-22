@@ -119,5 +119,19 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    server: {
+            proxy: {
+                '/auth': {
+                    target: 'http://localhost:8000',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/auth/, '/auth'),
+                },
+                '/usuarios': {
+                    target: 'http://localhost:8000',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/usuarios/, '/usuarios'),
+                },
+            },
+        },
   },
 });

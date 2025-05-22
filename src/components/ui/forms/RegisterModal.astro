@@ -6,6 +6,12 @@ import Checkbox from "./input/Checkbox.astro";
 import GoogleBtn from "@components/ui/buttons/GoogleBtn.astro";
 import AuthBtn from "@components/ui/buttons/AuthBtn.astro";
 
+import DireccionInput from "./camposInput/DireccionInput.astro";
+import TelefonoInput from "./camposInput/TelefonoInput.astro";
+import NombreApellidoInput from "./camposInput/NombreApellidoInput.astro";
+import RutInput from "./camposInput/RutInput.astro";
+import RolInput from "./camposInput/RolInput.astro";
+
 
 // Config object for customization of the component
 const config = {
@@ -59,9 +65,30 @@ const config = {
               O
             </div>
             <!-- Registration form -->
-            <form method="post" action="/routers/usuarios">
+            <form method="post" action="http://localhost:8000/usuarios/">
               <div class="grid gap-y-4">
                 <!-- Input field for first name and last name -->
+
+                <NombreApellidoInput
+                  id="register-name"
+                  errorId="register-name-error"
+                  label="Nombre y Apellido"
+                />
+                <RutInput
+                  id="register-rut"
+                  errorId="register-rut-error"
+                  label="Rut"
+                />
+                <DireccionInput
+                  id="register-direccion"
+                  errorId="register-direccion-error"
+                  label="Dirección de residencia"
+                />
+                <TelefonoInput
+                  id="register-telefono"
+                  errorId="register-telefono-error"
+                  label="Teléfono"
+                />
                 <EmailInput 
                   id="register-email"
                   errorId="register-email-error"/>
@@ -78,6 +105,8 @@ const config = {
                   errorId="confirm-password-error"
                   content="Password does not match the password"
                 />
+                <!-- Hidden input field for user role -->
+                <RolInput value="5"/>
                 <!-- Checkbox with a label and a link for accepting the terms and conditions -->
                 <Checkbox label="Acepto los " , id="terms-agree">
                   <a

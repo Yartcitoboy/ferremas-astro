@@ -1,11 +1,15 @@
 from fastapi import APIRouter, HTTPException
 from src.lib.db import get_conexion
+from fastapi import Form
+from passlib.context import CryptContext
 
 #vamos a crear la variable para las rutas:
 router = APIRouter(
     prefix="/usuarios",
     tags=["Usuarios"]
 )
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 #endpoints: GET, GET, POST, PUT, DELETE, PATCH
 @router.get("/")
@@ -15,34 +19,28 @@ def obtener_usuarios():
         cursor = cone.cursor()
         cursor.execute(
             """SELECT 
-                u.nombre,
-                u.apellido,
+                u.nombre_apellidos,
                 u.rut,
                 u.direccion,
                 u.telefono,
                 u.email,
-                u.fecha_nacimiento,
-                r.nombre_rol,
-                g.nombre
+                u.contrasena,
+                r.nombre_rol
             FROM 
                 usuario u
             JOIN
-                rol r on u.id_rol = r.id_rol
-            JOIN
-                genero g on u.id_genero = g.id_genero""",
+                rol r on u.id_rol = r.id_rol""",
         )
         usuarios = []
-        for nombre, apellido, rut, direccion, telefono, email, fecha_nacimiento, rol, genero in cursor:
+        for nombre_apellidos, rut, direccion, telefono, email, contrasena, rol in cursor:
             usuarios.append({
-                "nombre": nombre,
-                "apellido": apellido,
+                "nombre_apellidos": nombre_apellidos,
                 "rut": rut,
                 "direccion": direccion,
                 "telefono": telefono,
                 "email": email,
-                "fecha_nacimiento": fecha_nacimiento,
-                "rol": rol,
-                "genero": genero
+                "contrasena": contrasena,
+                "rol": rol
             })
         cursor.close()
         cone.close()
@@ -57,22 +55,18 @@ def obtener_usuario(rut_buscar: int):
         cursor = cone.cursor()
         cursor.execute(
             """SELECT 
-                s.nombre,
-                s.apellido,
-                s.direccion,
-                s.telefono, 
-                s.email,
-                s.fecha_nacimiento,
-                r.nombre_rol
-                g.nombre
+                u.nombre_apellidos,
+                u.direccion,
+                u.telefono, 
+                u.email,
+                u.contrasena,
+                r.nombre_rol,
             FROM 
-                usuario s
+                usuario u
             WHERE  
                 rut = :rut
             JOIN
-                rol r on s.id_rol = r.id_rol
-            JOIN
-                genero g on s.id_genero = g.id_genero"""
+                rol r on u.id_rol = r.id_rol"""
             ,{"rut": rut_buscar}
         )
         usuario = cursor.fetchone()
@@ -82,45 +76,94 @@ def obtener_usuario(rut_buscar: int):
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
         return {
             "rut": rut_buscar,
-            "nombre": usuario[0],
-            "apellido": usuario[1],
-            "direccion": usuario[2],
-            "telefono": usuario[3],
-            "email": usuario[4],
-            "fecha_nacimiento": usuario[5],
-            "rol": usuario[6],
-            "genero": usuario[7]
+            "nombre_apellidos": usuario[0],
+            "direccion": usuario[1],
+            "telefono": usuario[2],
+            "email": usuario[3],
+            "contrasena": usuario[4],
+            "rol": usuario[5],
         }
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
 
 @router.post("/")
-def agregar_usuario(nombre:str, apellido: str, rut:int, direccion:str, telefono:int, email:str, fecha_nacimiento:str, id_rol:int, id_genero:int):
+def agregar_usuario(
+    nombre_apellidos: str = Form(...),
+    rut: int = Form(...),
+    direccion: str = Form(...),
+    telefono: int = Form(...),
+    email: str = Form(...),
+    contrasena: str = Form(...),
+    id_rol: int = Form(...)
+):
     try:
         cone = get_conexion()
         cursor = cone.cursor()
+        hashed_password = pwd_context.hash(contrasena)
+
+        # Insertar en la tabla 'usuario' y obtener el id_usuario generado
         cursor.execute("""
-            INSERT INTO usuario
-            VALUES(:nombre, :apellido, :rut, :direccion, :telefono, :email, :fecha_nacimiento, :id_rol, :id_genero)
-        """
-        ,{"nombre":nombre, "apellido":apellido, "rut":rut, "direccion":direccion, "telefono":telefono, "email": email, "fecha_nacimiento":fecha_nacimiento, "id_rol":id_rol, "id_genero":id_genero})
+    INSERT INTO usuario (
+        nombre_apellidos, rut, direccion, telefono, email, contrasena, id_rol
+    )
+    VALUES (
+        :nombre_apellidos, :rut, :direccion, :telefono, :email, :contrasena, :id_rol
+    )
+""", {
+    "nombre_apellidos": nombre_apellidos,
+    "rut": rut,
+    "direccion": direccion,
+    "telefono": telefono,
+    "email": email,
+    "contrasena": hashed_password,
+    "id_rol": id_rol
+})
+        # Obtener el id_usuario de la última inserción using a sequence or similar if needed
+        cursor.execute("SELECT id_usuario FROM usuario WHERE email = :email", {"email": email})
+        user_result = cursor.fetchone()
+        if not user_result:
+            cone.rollback()
+            cursor.close()
+            cone.close()
+            raise HTTPException(status_code=500, detail="Error al obtener ID de usuario")
+        user_id = user_result[0]
         cone.commit()
+
+        # Insertar en la tabla 'credencial'
+        cursor.execute("""
+    INSERT INTO credencial (
+        id_usuario, email, contrasena
+    )
+    VALUES (
+        :id_usuario, :email, :contrasena
+    )
+""", {
+    "id_usuario": user_id,
+    "email": email,
+    "contrasena": hashed_password
+})
+        cone.commit()
+
         cursor.close()
         cone.close()
-        return {"mensaje": "Alumno agregado con éxito"}
+        return {"mensaje": "Usuario registrado con éxito"}
     except Exception as ex:
+        cone.rollback()
+        if cone.is_connected():
+            cursor.close()
+            cone.close()
         raise HTTPException(status_code=500, detail=str(ex))
 
 @router.put("/{rut_actualizar}")
-def actualizar_usuario(rut_actualizar:int, nombre:str, apellido:str, direccion:str, telefono:int, email:str, fecha_nacimiento:str, id_rol:int, id_genero:int):
+def actualizar_usuario(rut_actualizar:int, nombre_apellidos:str, direccion:str, telefono:int, email:str, contrasena:str, id_rol:int):
     try:
         cone = get_conexion()
         cursor = cone.cursor()
         cursor.execute("""
                 UPDATE usuario
-                SET nombre = :nombre, apellido = :apellido, direccion = :direccion, telefonp = :telefono, email = :email, fecha_nacimiento = :fecha_nacimiento, id_rol = :id_rol, id_genero = :id_genero
+                SET nombre_apellidos = :nombre_apellidos, direccion = :direccion, telefonp = :telefono, email = :email, contrasena = :contrasena, id_rol = :id_rol
                 WHERE rut = :rut
-        """, {"nombre":nombre, "apellido":apellido, "rut":rut_actualizar, "direccion":direccion, "telefono":telefono, "email":email, "fecha_nacimiento":fecha_nacimiento, "id_rol":id_rol, "id_genero":id_genero})
+        """, {"nombre_apellidos":nombre_apellidos, "rut":rut_actualizar, "direccion":direccion, "telefono":telefono, "email":email, "contrasena":contrasena, "id_rol":id_rol})
         if cursor.rowcount==0:
             cursor.close()
             cone.close()
@@ -182,3 +225,4 @@ def actualizar_parcial(rut_actualizar:int, nombre:Optional[str]=None, email:Opti
         return {"mensaje": "Usuario actualizado con éxito"}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
+    
