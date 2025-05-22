@@ -1,0 +1,37 @@
+---
+
+import Authentication from "src/components/sections/misc/Authentication.astro";
+import LogoutButton from "@components/ui/buttons/LogoutButton.astro";
+---
+
+<div class="flex items-center">
+  <span id="login-button-container">
+    <Authentication />
+  </span>
+  <span id="logout-button-container" class="hidden ml-4">
+    <LogoutButton />
+  </span>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginButtonContainer = document.getElementById('login-button-container');
+    const logoutButtonContainer = document.getElementById('logout-button-container');
+
+    const updateAuthDisplay = () => {
+      const isLoggedIn = localStorage.getItem('accessToken') !== null;
+      if (isLoggedIn) {
+        if (loginButtonContainer) loginButtonContainer.classList.add('hidden');
+        if (logoutButtonContainer) logoutButtonContainer.classList.remove('hidden');
+      } else {
+        if (loginButtonContainer) loginButtonContainer.classList.remove('hidden');
+        if (logoutButtonContainer) logoutButtonContainer.classList.add('hidden');
+      }
+    };
+
+    updateAuthDisplay();
+
+    window.addEventListener('login-success', updateAuthDisplay);
+    window.addEventListener('logout-success', updateAuthDisplay);
+  });
+</script>

@@ -2,23 +2,21 @@
 //Import relevant dependencies
 import ThemeIcon from "@components/ThemeIcon.astro";
 import NavLink from "@components/ui/links/NavLink.astro";
-import Authentication from "../misc/Authentication.astro";
-import LogoutButton from "@components/ui/buttons/LogoutButton.astro";
-import enStrings from "@utils/navigation.ts";
-import frStrings from "@utils/fr/navigation.ts";
+import MegaMenuLink from "@components/ui/links/MegaMenuLink.astro";
 import BrandLogo from "@components/BrandLogo.astro";
+import Authentication from "../misc/Authentication.astro";
+import AuthStatus from "@components/AuthStatus.astro"; // Importa el nuevo componente
 
 // Select the correct translation based on the page's lang prop:
+import enStrings from "@utils/navigation.ts";
+import frStrings from "@utils/fr/navigation.ts";
 const strings = Astro.currentLocale === "fr" ? frStrings : enStrings;
 const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
 const {isSticky = true} = Astro.props;
-
-// Verificar si el token existe en localStorage
-const isLoggedIn = typeof localStorage !== 'undefined' && localStorage.getItem('accessToken');
 ---
 
 <header
-  class={`${isSticky ? "sticky inset-x-0 top-4" : ""} z-50 flex w-full flex-wrap text-sm md:flex-nowrap md:justify-start`}
+  class="sticky inset-x-0 top-4 z-50 flex w-full flex-wrap text-sm md:flex-nowrap md:justify-start"
 >
   <nav
     class="relative mx-2 w-full rounded-[36px] border border-yellow-100/40 bg-yellow-50/60 px-4 py-3 backdrop-blur-md dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md md:flex md:items-center md:justify-between md:px-6 md:py-0 lg:px-8 xl:mx-auto"
@@ -80,28 +78,95 @@ const isLoggedIn = typeof localStorage !== 'undefined' && localStorage.getItem('
       class="hs-collapse hidden grow basis-full overflow-hidden transition-all duration-300 md:block"
     >
       <div
-        class="mt-5 flex flex-col gap-x-0 gap-y-4 md:mt-0 md:flex-row md:items-center md:justify-end md:gap-x-4 lg:gap-x-7 md:gap-y-0 md:ps-7"
+        class="mt-5 flex flex-col gap-x-0 gap-y-4 md:mt-0 md:flex-row md:items-center md:justify-end md:gap-x-4 md:gap-y-0 md:ps-7 lg:gap-x-7"
       >
-        {strings.navBarLinks.map(link => (
-          <NavLink url={link.url} name={link.name} />
-        ))}
+        {
+          strings.navBarLinks.map((link) => {
+            if (link.name === "Services") {
+              return <MegaMenuLink />;
+            } else {
+              return <NavLink url={link.url} name={link.name} />;
+            }
+          })
+        }
 
-        {isLoggedIn ? (
-          <LogoutButton />
-        ) : (
-          <Authentication />
-        )}
+        {/* Sección de autenticación: usa el nuevo componente AuthStatus */}
+        <div id="auth-section" class="flex items-center">
+          <AuthStatus />
+        </div>
 
-        <span class="hidden md:inline-block">
+        <span class="hidden md:inline-block ml-4">
           <ThemeIcon />
         </span>
       </div>
-      </div>
+    </div>
   </nav>
 </header>
+
 <script is:inline>
-  const HSThemeAppearance = { /* ... tu código de tema ... */ };
+  // Tu código existente de HSThemeAppearance (sin cambios)
+  const HSThemeAppearance = {
+    init() {
+      const defaultTheme = "default";
+      let theme = localStorage.getItem("hs_theme") || defaultTheme;
+
+      if (document.querySelector("html").classList.contains("dark")) return;
+      this.setAppearance(theme);
+    },
+    _resetStylesOnLoad() {
+      const $resetStyles = document.createElement("style");
+      $resetStyles.innerText = `*{transition: unset !important;}`;
+      $resetStyles.setAttribute("data-hs-appearance-onload-styles", "");
+      document.head.appendChild($resetStyles);
+      return $resetStyles;
+    },
+    setAppearance(theme, saveInStore = true, dispatchEvent = true) {
+      const $resetStylesEl = this._resetStylesOnLoad();
+
+      if (saveInStore) {
+        localStorage.setItem("hs_theme", theme);
+      }
+
+      if (theme === "auto") {
+        theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "default";
+      }
+
+      document.querySelector("html").classList.remove("dark");
+      document.querySelector("html").classList.remove("default");
+      document.querySelector("html").classList.remove("auto");
+
+      document
+        .querySelector("html")
+        .classList.add(this.getOriginalAppearance());
+
+      setTimeout(() => {
+        $resetStylesEl.remove();
+      });
+
+      if (dispatchEvent) {
+        window.dispatchEvent(
+          new CustomEvent("on-hs-appearance-change", { detail: theme })
+        );
+      }
+    },
+    getAppearance() {
+      let theme = this.getOriginalAppearance();
+      if (theme === "auto") {
+        theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "default";
+      }
+      return theme;
+    },
+    getOriginalAppearance() {
+      const defaultTheme = "default";
+      return localStorage.getItem("hs_theme") || defaultTheme;
+    },
+  };
   HSThemeAppearance.init();
+
   window
     .matchMedia("(prefers-color-scheme: dark)")
     .addEventListener("change", () => {
@@ -109,28 +174,33 @@ const isLoggedIn = typeof localStorage !== 'undefined' && localStorage.getItem('
         HSThemeAppearance.setAppearance("auto", false);
       }
     });
+
   window.addEventListener("load", () => {
     const $clickableThemes = document.querySelectorAll(
-      "[data-hs-theme-click-value]",
+      "[data-hs-theme-click-value]"
     );
     const $switchableThemes = document.querySelectorAll(
-      "[data-hs-theme-switch]",
+      "[data-hs-theme-switch]"
     );
+
     $clickableThemes.forEach(($item) => {
       $item.addEventListener("click", () =>
         HSThemeAppearance.setAppearance(
           $item.getAttribute("data-hs-theme-click-value"),
           true,
-          $item,
-        ),
+          $item
+        )
       );
     });
+
     $switchableThemes.forEach(($item) => {
       $item.addEventListener("change", (e) => {
         HSThemeAppearance.setAppearance(e.target.checked ? "dark" : "default");
       });
+
       $item.checked = HSThemeAppearance.getAppearance() === "dark";
     });
+
     window.addEventListener("on-hs-appearance-change", (e) => {
       $switchableThemes.forEach(($item) => {
         $item.checked = e.detail === "dark";

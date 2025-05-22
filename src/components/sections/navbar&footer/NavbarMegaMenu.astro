@@ -4,27 +4,25 @@ import ThemeIcon from "@components/ThemeIcon.astro";
 import NavLink from "@components/ui/links/NavLink.astro";
 import MegaMenuLink from "@components/ui/links/MegaMenuLink.astro";
 import Authentication from "../misc/Authentication.astro";
+import LogoutButton from "@components/ui/buttons/LogoutButton.astro"; // Asegúrate de que esta ruta sea correcta
 import enStrings from "@utils/navigation.ts";
 import frStrings from "@utils/fr/navigation.ts";
 import BrandLogo from "@components/BrandLogo.astro";
 
-
 // Select the correct translation based on the page's lang prop:
 const strings = Astro.currentLocale === "fr" ? frStrings : enStrings;
 const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
+const {isSticky = true} = Astro.props;
 ---
 
-<!-- Main header component -->
 <header
   class="sticky inset-x-0 top-4 z-50 flex w-full flex-wrap text-sm md:flex-nowrap md:justify-start"
 >
-  <!-- Navigation container -->
   <nav
     class="relative mx-2 w-full rounded-[36px] border border-yellow-100/40 bg-yellow-50/60 px-4 py-3 backdrop-blur-md dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md md:flex md:items-center md:justify-between md:px-6 md:py-0 lg:px-8 xl:mx-auto"
     aria-label="Global"
   >
     <div class="flex items-center justify-between">
-      <!-- Brand logo -->
       <a
         class="flex-none rounded-lg text-xl font-bold outline-hidden ring-zinc-500 focus-visible:ring-3 dark:ring-zinc-200 dark:focus:outline-hidden"
         href={homeUrl}
@@ -32,7 +30,6 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
       >
         <BrandLogo class="h-auto w-24" />
       </a>
-      <!-- Collapse toggle for smaller screens -->
       <div class="ml-auto mr-5 md:hidden">
         <button
           type="button"
@@ -72,21 +69,17 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
           </svg>
         </button>
       </div>
-      <!-- ThemeIcon component specifically for smaller screens -->
       <span class="inline-block md:hidden">
         <ThemeIcon />
       </span>
     </div>
-    <!-- Contains navigation links -->
     <div
       id="navbar-collapse-with-animation"
       class="hs-collapse hidden grow basis-full overflow-hidden transition-all duration-300 md:block"
     >
-      <!-- Navigation links container -->
       <div
         class="mt-5 flex flex-col gap-x-0 gap-y-4 md:mt-0 md:flex-row md:items-center md:justify-end md:gap-x-4 md:gap-y-0 md:ps-7 lg:gap-x-7"
       >
-        <!-- Navigation links and Authentication component -->
         {
           strings.navBarLinks.map((link) => {
             if (link.name === "Services") {
@@ -97,18 +90,61 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
           })
         }
 
-        <Authentication />
-        
-        <!-- ThemeIcon component specifically for larger screens -->
-        <span class="hidden md:inline-block">
+        {/* ESTE FUE EL CAMBIO: Contenedores para los botones de autenticación/logout */}
+        <div id="auth-section" class="flex items-center">
+          <div id="auth-login-button">
+            <Authentication />
+          </div>
+          <div id="auth-logout-button" class="hidden ml-4"> {/* Inicialmente oculto y con margen */}
+            <LogoutButton />
+          </div>
+        </div>
+
+        <span class="hidden md:inline-block ml-4">
           <ThemeIcon />
         </span>
       </div>
     </div>
   </nav>
 </header>
-<!-- Theme Appearance script to manage light/dark modes -->
+
 <script is:inline>
+  import { onMount } from 'astro';
+
+  onMount(() => {
+    const authLoginBtnWrapper = document.getElementById('auth-login-button');
+    const authLogoutBtnWrapper = document.getElementById('auth-logout-button');
+
+    const updateAuthDisplay = () => {
+      const isLoggedIn = localStorage.getItem('accessToken') !== null;
+      if (isLoggedIn) {
+        if (authLoginBtnWrapper) authLoginBtnWrapper.classList.add('hidden');
+        if (authLogoutBtnWrapper) authLogoutBtnWrapper.classList.remove('hidden');
+      } else {
+        if (authLoginBtnWrapper) authLoginBtnWrapper.classList.remove('hidden');
+        if (authLogoutBtnWrapper) authLogoutBtnWrapper.classList.add('hidden');
+      }
+    };
+
+    // Actualizar al cargar la página
+    updateAuthDisplay();
+
+    // Escuchar eventos personalizados para actualizar el estado
+    window.addEventListener('login-success', updateAuthDisplay);
+    window.addEventListener('logout-success', updateAuthDisplay);
+
+    // Lógica para el botón de "Salir"
+    const logoutButton = authLogoutBtnWrapper ? authLogoutBtnWrapper.querySelector('button') : null;
+    if (logoutButton) {
+      logoutButton.addEventListener('click', () => {
+        localStorage.removeItem('accessToken');
+        window.dispatchEvent(new CustomEvent('logout-success'));
+        window.location.reload(); // Recargar la página para actualizar la UI
+      });
+    }
+  });
+
+  // Tu código existente de HSThemeAppearance (sin cambios)
   const HSThemeAppearance = {
     init() {
       const defaultTheme = "default";

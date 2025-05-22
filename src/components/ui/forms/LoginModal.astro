@@ -53,15 +53,17 @@ const config = {
             >
               O
             </div>
-            <form id="loginForm">
+            <form id="loginForm" method="post">
               <div class="grid gap-y-4">
-                <EmailInput id="login-email" errorId="login-email-error" name="username" />
+                {/* ESTE FUE EL CAMBIO: name="email" */}
+                <EmailInput id="login-email" errorId="login-email-error" name="email" />
+                {/* ESTE FUE EL CAMBIO: name="contrasena" */}
                 <PasswordInput
                   forgot={true}
                   id="password"
                   errorId="login-password-error"
                   content="8+ characters required"
-                  name="password"
+                  name="contrasena"
                 />
                 <Checkbox id="remember-me" />
                 <AuthBtn title="Acceder" />
@@ -107,9 +109,12 @@ const config = {
         console.log('Token guardado:', data.access_token);
         try {
           const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]));
-          console.log('Payload del token:', tokenPayload); // <-- Añadimos este log ANTES de extraer el rol
+          console.log('Payload del token:', tokenPayload);
           const userRole = tokenPayload.role;
           console.log('Rol del usuario:', userRole);
+
+          // ESTE FUE EL CAMBIO: Dispara un evento personalizado para que la Navbar se actualice
+          window.dispatchEvent(new CustomEvent('login-success'));
 
           if (userRole === 'Administrador') {
             window.location.href = '/users/dashAdmin';
