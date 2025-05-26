@@ -1,19 +1,35 @@
-<section id="cart-section" class="fixed top-8 right-0 w-96 bg-white shadow-lg z-50 p-6 hidden transition-transform duration-500">  
+<section id="cart-section" class="fixed top-8 right-0 w-96 bg-white shadow-lg z-50 p-6 hidden transition-transform duration-500">
     <h2 class="text-xl font-bold mb-4">Carrito</h2>
-    <div id="cart-items"></div>
-    <div class="mt-4">
-        <strong>Total: $<span id="cart-total">0</span></strong>
-        <button id="clear-cart" class="ml-4 px-3 py-1 bg-red-500 text-white rounded">Vaciar</button>
+    <div id="cart-items" class="mb-4">
+        {/* Los items del carrito se renderizan aquí por el script */}
+    </div>
+    <div class="border-t pt-4 mb-4">
+        <div class="flex justify-between items-center mb-2">
+            <span>Subtotal:</span>
+            <strong>$<span id="cart-total">0</span></strong>
+        </div>
+        {/* Aquí podrías añadir descuentos, costos de envío, etc. */}
+        <div class="font-semibold text-lg flex justify-between items-center">
+            <span>Total:</span>
+            <strong>$<span id="cart-total">0</span></strong>
+        </div>
+    </div>
+    <div class="flex flex-col gap-2">
+        <div id="paypal-button-container"></div>
+        <button class="bg-gray-300 text-gray-700 py-2 px-4 rounded">Transferencia (Próximamente)</button>
+        <button id="clear-cart" class="text-red-600 hover:underline mt-2 w-full text-center">Vaciar Carrito</button>
     </div>
 </section>
 
-
 <script is:inline>
+document.addEventListener("DOMContentLoaded", () => {
   // Carrito en memoria
   let cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
   function saveCart() {
     localStorage.setItem("cart", JSON.stringify(cart));
+    // Recarga el array cart después de guardar para mantenerlo actualizado
+    cart = JSON.parse(localStorage.getItem("cart") || "[]");
     updateCartUI();
   }
 
@@ -29,7 +45,7 @@
   }
 
   function removeFromCart(id) {
-    cart = cart.filter(item => item.id_producto !== id);
+    cart = cart.filter(item => item.id_producto != id);
     saveCart();
   }
 
@@ -38,22 +54,70 @@
     saveCart();
   }
 
+  function changeQty(id, delta) {
+    const idx = cart.findIndex(item => item.id_producto == id);
+    if (idx !== -1) {
+      cart[idx].qty = Math.max(1, cart[idx].qty + delta);
+      saveCart();
+    }
+  }
+  window.changeQty = changeQty;
+
   function updateCartUI() {
-    const cartItems = document.getElementById("cart-items");
+    const cartItemsContainer = document.getElementById("cart-items");
     const cartCount = document.getElementById("cart-count");
-    const cartTotal = document.getElementById("cart-total");
-    if (!cartItems) return;
-    cartItems.innerHTML = cart.length
+    const cartTotalElement = document.getElementById("cart-total");
+    if (!cartItemsContainer) return;
+
+    cartItemsContainer.innerHTML = cart.length
       ? cart.map(item => `
-        <div class="flex justify-between items-center mb-2">
-          <span>${item.nombre} x${item.qty}</span>
-          <span>$${item.precio * item.qty}</span>
-          <button onclick="removeFromCart('${item.id_producto}')" class="text-red-500">🗑️</button>
+        <div class="flex items-center mb-4 border-b pb-2">
+          <input type="checkbox" class="mr-2" id="item-${item.id_producto}" checked onchange="window.recalculateTotal()">
+          <img src="${item.imagen}" alt="${item.nombre}" class="w-16 h-16 object-cover mr-4 rounded">
+          <div class="flex-grow">
+            <h6 class="font-semibold">${item.nombre}</h6>
+            <div class="flex items-center gap-2 mt-1">
+              <button class="px-2 py-1 bg-gray-200 text-gray-700 rounded" onclick="window.changeQty('${item.id_producto}', -1)">−</button>
+              <span class="text-sm">${item.qty}</span>
+              <button class="px-2 py-1 bg-gray-200 text-gray-700 rounded" onclick="window.changeQty('${item.id_producto}', 1)">+</button>
+            </div>
+          </div>
+          <span class="font-semibold">$${(item.precio * item.qty).toFixed(2)}</span>
+          <button onclick="window.removeFromCart('${item.id_producto}')" class="ml-4 text-red-500">🗑️</button>
         </div>
       `).join("")
-      : "<em>El carrito está vacío</em>";
-    cartCount.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
-    cartTotal.textContent = cart.reduce((sum, item) => sum + item.precio * item.qty, 0);
+      : "<em class='block py-4 text-gray-500'>El carrito está vacío</em>";
+
+    if (cartCount) cartCount.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+    const total = calculateSelectedTotal();
+    if (cartTotalElement) cartTotalElement.textContent = total.toFixed(2);
+
+    // Renderizar el botón de PayPal cada vez que se actualiza el carrito
+    const paypalButtonContainer = document.getElementById('paypal-button-container');
+    if (paypalButtonContainer && window.paypal) {
+      paypalButtonContainer.innerHTML = '';
+      paypal.Buttons({
+        // ...tu lógica de PayPal...
+      }).render('#paypal-button-container');
+    }
+  }
+
+  function recalculateTotal() {
+    const cartTotalElement = document.getElementById("cart-total");
+    const total = calculateSelectedTotal();
+    if (cartTotalElement) cartTotalElement.textContent = total.toFixed(2);
+  }
+  window.recalculateTotal = recalculateTotal;
+
+  function calculateSelectedTotal() {
+    let selectedTotal = 0;
+    cart.forEach(item => {
+      const checkbox = document.getElementById(`item-${item.id_producto}`);
+      if (checkbox?.checked) {
+        selectedTotal += item.precio * item.qty;
+      }
+    });
+    return selectedTotal;
   }
 
   function animateCart() {
@@ -64,17 +128,34 @@
     }
   }
 
-  // Mostrar/ocultar carrito
-  document.getElementById("open-cart").onclick = () => {
-    document.getElementById("cart-section").classList.toggle("hidden");
-    // Puedes animar con GSAP aquí si quieres
-  };
-  document.getElementById("clear-cart").onclick = () => clearCart();
+  // Botones abrir/cerrar/limpiar
+  const openCartButton = document.getElementById("open-cart");
+  if (openCartButton) {
+    openCartButton.onclick = () => {
+      updateCartUI();
+      document.getElementById("cart-section").classList.remove("hidden");
+    };
+  }
 
-  // Exponer funciones globalmente para los botones
+  const closeCartButton = document.getElementById("close-cart");
+  const cartSection = document.getElementById("cart-section");
+  if (closeCartButton && cartSection) {
+    closeCartButton.onclick = () => {
+      cartSection.classList.add("hidden");
+    };
+  }
+
+  const clearCartButton = document.getElementById("clear-cart");
+  if (clearCartButton) {
+    clearCartButton.onclick = () => clearCart();
+  }
+
+  // Exponer funciones globales
   window.addToCart = addToCart;
-  window.removeFromCart = id => removeFromCart(id);
+  window.removeFromCart = removeFromCart;
+  window.changeQty = changeQty;
 
   // Inicializar UI
   updateCartUI();
+});
 </script>

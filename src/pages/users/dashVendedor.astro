@@ -1,76 +1,7 @@
 ---
 // Importa las dependencias necesarias
-import { Package, ShoppingCart, Truck, CheckCircle, XCircle, Search } from "@lucide/astro";
+import { Truck } from "@lucide/astro";
 import MainLayout from "@/layouts/MainLayout.astro";
-
-let inventarioData: {
-  id_producto: number;
-  id_pedido: number;
-  nombre: string;
-  categoria: string;
-  stock: number;
-  precio: number;
-}[] = [];
-
-let pedidosData: {
-  id_pedido: number;
-  cliente: string;
-  fecha: string;
-  total: number;
-  estado: string;
-}[] = [];
-
-let despachosData: {
-  id_despacho: number;
-  id_pedido: number;
-  fecha_envio: string;
-  direccion: string;
-  estado: string;
-}[] = [];
-
-// Función para obtener los datos de inventarios desde la API
-async function fetchInventario() {
-  try {
-    const response = await fetch("http://localhost:6500/product");
-    if (!response.ok) {
-      throw new Error("Error al obtener los datos de inventario");
-    }
-    inventarioData = await response.json();
-  } catch (error) {
-    console.error("Error al obtener inventarios:", error);
-  }
-}
-
-// Función para obtener los datos de pedidos desde la API
-async function fetchPedidos() {
-  try {
-    const response = await fetch("http://localhost:6500/pedido"); // Reemplaza con la URL correcta
-    if (!response.ok) {
-      throw new Error("Error al obtener los datos de pedidos");
-    }
-    pedidosData = await response.json();
-  } catch (error) {
-    console.error("Error al obtener pedidos:", error);
-  }
-}
-
-// Función para obtener los datos de despachos desde la API
-async function fetchDespachos() {
-  try {
-    const response = await fetch("http://localhost:6500/despacho"); // Reemplaza con la URL correcta
-    if (!response.ok) {
-      throw new Error("Error al obtener los datos de despachos");
-    }
-    despachosData = await response.json();
-  } catch (error) {
-    console.error("Error al obtener despachos:", error);
-  }
-}
-
-// Llama a la función para obtener los datos al cargar la página
-await fetchInventario();
-await fetchPedidos();
-await fetchDespachos();
 ---
 
 <MainLayout>
@@ -85,6 +16,7 @@ await fetchDespachos();
       <button class="px-6 py-3 focus:outline-none focus:bg-neutral-700" data-tab="despachos">Despachos</button>
     </nav>
 
+    <!-- Inventario -->
     <section id="inventario" class="p-6">
       <h2 class="text-lg font-semibold text-orange-500">Inventario</h2>
       <table class="w-full border-collapse text-left text-sm text-neutral-400">
@@ -97,20 +29,13 @@ await fetchDespachos();
             <th class="border border-neutral-700 px-4 py-2">Precio</th>
           </tr>
         </thead>
-        <tbody>
-          {inventarioData.map((producto) => (
-            <tr class="hover:bg-neutral-700">
-              <td class="border border-neutral-700 px-4 py-2">{producto.id_producto}</td>
-              <td class="border border-neutral-700 px-4 py-2">{producto.nombre}</td>
-              <td class="border border-neutral-700 px-4 py-2">{producto.categoria}</td>
-              <td class="border border-neutral-700 px-4 py-2">{producto.stock}</td>
-              <td class="border border-neutral-700 px-4 py-2">${producto.precio}</td>
-            </tr>
-          ))}
+        <tbody id="inventario-tbody">
+          <!-- Se puede llenar con Astro o JS si quieres hacerlo dinámico -->
         </tbody>
       </table>
     </section>
 
+    <!-- Pedidos -->
     <section id="pedidos" class="hidden p-6">
       <h2 class="text-lg font-semibold text-orange-500">Pedidos</h2>
       <table class="w-full border-collapse text-left text-sm text-neutral-400">
@@ -124,21 +49,13 @@ await fetchDespachos();
             <th class="border border-neutral-700 px-4 py-2">Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          {pedidosData.map((pedido) => (
-            <tr class="hover:bg-neutral-700">
-              <td class="border border-neutral-700 px-4 py-2">{pedido.id_pedido}</td>
-              <td class="border border-neutral-700 px-4 py-2">{pedido.cliente}</td>
-              <td class="border border-neutral-700 px-4 py-2">{pedido.fecha}</td>
-              <td class="border border-neutral-700 px-4 py-2">${pedido.total}</td>
-              <td class="border border-neutral-700 px-4 py-2">{pedido.estado}</td>
-              <td class="border border-neutral-700 px-4 py-2"></td> {/* Aquí podrías agregar botones de acción */}
-            </tr>
-          ))}
+        <tbody id="pedidos-tbody">
+          <!-- Se llena con JS -->
         </tbody>
       </table>
     </section>
 
+    <!-- Despachos -->
     <section id="despachos" class="hidden p-6">
       <h2 class="text-lg font-semibold text-orange-500">Despachos</h2>
       <table class="w-full border-collapse text-left text-sm text-neutral-400">
@@ -152,24 +69,186 @@ await fetchDespachos();
             <th class="border border-neutral-700 px-4 py-2">Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          {despachosData.map((despacho) => (
-            <tr class="hover:bg-neutral-700">
-              <td class="border border-neutral-700 px-4 py-2">{despacho.id_despacho}</td>
-              <td class="border border-neutral-700 px-4 py-2">{despacho.id_pedido}</td>
-              <td class="border border-neutral-700 px-4 py-2">{despacho.fecha_envio}</td>
-              <td class="border border-neutral-700 px-4 py-2">{despacho.direccion}</td>
-              <td class="border border-neutral-700 px-4 py-2">{despacho.estado}</td>
-              <td class="border border-neutral-700 px-4 py-2"></td> {/* Aquí podrías agregar botones de acción */}
-            </tr>
-          ))}
+        <tbody id="despachos-tbody">
+          <!-- Se llena con JS -->
         </tbody>
       </table>
     </section>
   </div>
 
   <script type="module">
+    // --- Datos globales ---
+    let pedidosData = [];
+    let despachosData = [];
+    let inventarioData = [];
+
+    // --- Fetch Inventario ---
+    async function fetchInventarioCliente() {
+      try {
+        const response = await fetch("http://localhost:6500/product");
+        if (!response.ok) throw new Error("Error al obtener inventario");
+        inventarioData = await response.json();
+        renderInventarioTable();
+      } catch (error) {
+        console.error("Error al obtener inventario:", error);
+      }
+    }
+
+    // --- Fetch Pedidos ---
+    async function fetchPedidosCliente() {
+      try {
+        const response = await fetch("http://localhost:6500/pedido");
+        if (!response.ok) throw new Error("Error al obtener pedidos");
+        pedidosData = await response.json();
+        renderPedidosTable();
+      } catch (error) {
+        console.error("Error al obtener pedidos en el cliente:", error);
+      }
+    }
+
+    // --- Fetch Despachos ---
+    async function fetchDespachosCliente() {
+      try {
+        const response = await fetch("http://localhost:6500/despacho");
+        if (!response.ok) throw new Error("Error al obtener despachos");
+        despachosData = await response.json();
+        renderDespachosTable();
+      } catch (error) {
+        console.error("Error al obtener despachos:", error);
+      }
+    }
+
+    // --- Render Inventario ---
+    function renderInventarioTable() {
+      const tbody = document.getElementById('inventario-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      inventarioData.forEach(producto => {
+        const row = document.createElement('tr');
+        row.classList.add('hover:bg-neutral-700');
+        row.innerHTML = `
+          <td class="border border-neutral-700 px-4 py-2">${producto.id_producto}</td>
+          <td class="border border-neutral-700 px-4 py-2">${producto.nombre}</td>
+          <td class="border border-neutral-700 px-4 py-2">${producto.categoria}</td>
+          <td class="border border-neutral-700 px-4 py-2">${producto.stock}</td>
+          <td class="border border-neutral-700 px-4 py-2">$${producto.precio}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // --- Render Pedidos ---
+    function renderPedidosTable() {
+      const tbody = document.getElementById('pedidos-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      pedidosData.forEach(pedido => {
+        const row = document.createElement('tr');
+        row.classList.add('hover:bg-neutral-700');
+        row.innerHTML = `
+          <td class="border border-neutral-700 px-4 py-2">${pedido.id_pedido}</td>
+          <td class="border border-neutral-700 px-4 py-2">${pedido.cliente}</td>
+          <td class="border border-neutral-700 px-4 py-2">${pedido.fecha}</td>
+          <td class="border border-neutral-700 px-4 py-2">$${pedido.total}</td>
+          <td class="border border-neutral-700 px-4 py-2">${pedido.estado}</td>
+          <td class="border border-neutral-700 px-4 py-2">
+            <button class="text-indigo-500 hover:text-indigo-600 mr-2 aprobar-btn" title="Aprobar" data-pedido-id="${pedido.id_pedido}">✔️</button>
+            <button class="text-red-500 hover:text-red-600 rechazar-btn" title="Rechazar" data-pedido-id="${pedido.id_pedido}">❌</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Listeners para aprobar/rechazar
+      tbody.querySelectorAll('.aprobar-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const idPedido = parseInt(button.dataset.pedidoId, 10);
+          aprobarPedido(idPedido);
+        });
+      });
+      tbody.querySelectorAll('.rechazar-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const idPedido = parseInt(button.dataset.pedidoId, 10);
+          rechazarPedido(idPedido);
+        });
+      });
+    }
+
+    // --- Render Despachos ---
+    function renderDespachosTable() {
+      const tbody = document.getElementById('despachos-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      despachosData.forEach(despacho => {
+        const row = document.createElement('tr');
+        row.classList.add('hover:bg-neutral-700');
+        row.innerHTML = `
+          <td class="border border-neutral-700 px-4 py-2">${despacho.id_despacho}</td>
+          <td class="border border-neutral-700 px-4 py-2">${despacho.id_pedido}</td>
+          <td class="border border-neutral-700 px-4 py-2">${despacho.fecha_envio}</td>
+          <td class="border border-neutral-700 px-4 py-2">${despacho.direccion}</td>
+          <td class="border border-neutral-700 px-4 py-2">${despacho.estado}</td>
+          <td class="border border-neutral-700 px-4 py-2">
+            <button class="text-blue-500 hover:text-blue-600" title="Enviar a Bodega">
+              <svg class="inline-block w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 17v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M16 21v-4M8 21v-4M12 17v4M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"></path></svg>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // --- Acciones de pedidos ---
+    async function aprobarPedido(idPedido) {
+      try {
+        const response = await fetch(`http://localhost:6500/pedido/${idPedido}/aprobar`, { method: 'POST' });
+        const data = await response.json();
+        if (response.ok) {
+          pedidosData = pedidosData.map(pedido =>
+            pedido.id_pedido === idPedido ? { ...pedido, estado: 'Aprobado' } : pedido
+          );
+          renderPedidosTable();
+        } else {
+          alert(`Error al aprobar el pedido ${idPedido}: ${data.error || 'Desconocido'}`);
+        }
+      } catch (error) {
+        console.error("Error al aprobar el pedido:", error);
+        alert("Error al comunicarse con el servidor para aprobar el pedido.");
+      }
+    }
+
+    async function rechazarPedido(idPedido) {
+      try {
+        const responseRechazar = await fetch(`http://localhost:6500/pedido/${idPedido}/rechazar`, { method: 'POST' });
+        const dataRechazar = await responseRechazar.json();
+        if (responseRechazar.ok) {
+          const responseEliminar = await fetch(`http://localhost:6500/pedido/${idPedido}`, { method: 'DELETE' });
+          const dataEliminar = await responseEliminar.json();
+          if (responseEliminar.ok) {
+            pedidosData = pedidosData.filter(pedido => pedido.id_pedido !== idPedido);
+            renderPedidosTable();
+          } else {
+            alert(`Error al eliminar el pedido ${idPedido}: ${dataEliminar.error || 'Desconocido'}`);
+            pedidosData = pedidosData.map(pedido =>
+              pedido.id_pedido === idPedido ? { ...pedido, estado: 'Rechazado' } : pedido
+            );
+            renderPedidosTable();
+          }
+        } else {
+          alert(`Error al rechazar el pedido ${idPedido}: ${dataRechazar.error || 'Desconocido'}`);
+        }
+      } catch (error) {
+        console.error("Error al rechazar el pedido:", error);
+        alert("Error al comunicarse con el servidor para rechazar el pedido.");
+      }
+    }
+
+    // --- Tabs ---
     document.addEventListener('DOMContentLoaded', () => {
+      fetchInventarioCliente();
+      fetchPedidosCliente();
+      fetchDespachosCliente();
+
       const tabs = document.querySelectorAll('[data-tab]');
       const sections = {
         inventario: document.getElementById('inventario'),
@@ -196,21 +275,9 @@ await fetchDespachos();
         tab.addEventListener('click', () => {
           const target = tab.dataset.tab;
           if (!target) return;
-
-          // Ocultar todas las secciones
-          Object.values(sections).forEach(section => {
-            if (section) section.classList.add('hidden');
-          });
-
-          // Mostrar la sección activa
-          if (sections[target]) {
-            sections[target].classList.remove('hidden');
-          }
-
-          // Actualizar la clase activa de los botones
-          tabs.forEach(t => {
-            t.classList.remove('active', 'bg-neutral-700');
-          });
+          Object.values(sections).forEach(section => section.classList.add('hidden'));
+          if (sections[target]) sections[target].classList.remove('hidden');
+          tabs.forEach(t => t.classList.remove('active', 'bg-neutral-700'));
           tab.classList.add('active', 'bg-neutral-700');
         });
       });

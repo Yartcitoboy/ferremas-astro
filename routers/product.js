@@ -45,7 +45,7 @@ router.get("/" ,async (req, res) => {
         const productos = result.rows.map(row => ({
             id_producto: row[0],
             nombre: row[2],
-            categoria: row[10],
+            categoria: row[9],
             stock: row[5],
             precio: row[4],
             imagen: row[6],

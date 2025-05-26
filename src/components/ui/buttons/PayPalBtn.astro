@@ -1,0 +1,46 @@
+---
+// src/components/PayPalBtn.astro
+const { items } = Astro.props;
+const clientID = import.meta.env.PAYPAL_CLIENT_ID;
+---
+
+<div id="paypal-button-container"></div>
+
+<script is:inline>
+  paypal.Buttons({
+    createOrder: function(data, actions) {
+      return fetch('/api/create-paypal-order', { // Ajusta la ruta si es necesario
+        method: 'post',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          items: Astro.props.items // Usamos la prop 'items' que pasamos al componente
+        })
+      }).then(function(res) {
+        return res.json();
+      }).then(function(orderData) {
+        return orderData.id;
+      });
+    },
+    onApprove: function(data, actions) {
+      return fetch('/api/capture-paypal-order', { // Ajusta la ruta si es necesario
+        method: 'post',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          orderID: data.orderID
+        })
+      }).then(function(res) {
+        return res.json();
+      }).then(function(orderData) {
+        console.log('Orden aprobada:', orderData);
+        // Redirige o muestra un mensaje de éxito
+      });
+    },
+    onError: function(err) {
+      console.error('Error de PayPal:', err);
+    }
+  }).render('#paypal-button-container');
+</script>
