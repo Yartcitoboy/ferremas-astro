@@ -6,6 +6,7 @@ import MegaMenuLink from "@components/ui/links/MegaMenuLink.astro";
 import BrandLogo from "@components/BrandLogo.astro";
 import Authentication from "../misc/Authentication.astro";
 import AuthStatus from "@components/AuthStatus.astro"; // Importa el nuevo componente
+import UserProfile from "@components/sections/profile/UserProfile.astro"; // Importa el componente de perfil de usuario
 
 // Select the correct translation based on the page's lang prop:
 import enStrings from "@utils/navigation.ts";
@@ -93,6 +94,7 @@ const {isSticky = true} = Astro.props;
         {/* Sección de autenticación: usa el nuevo componente AuthStatus */}
         <div id="auth-section" class="flex items-center">
           <AuthStatus />
+          <UserProfile />
         </div>
 
         <span class="hidden md:inline-block ml-4">
