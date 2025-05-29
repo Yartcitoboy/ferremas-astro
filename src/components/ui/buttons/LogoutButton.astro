@@ -38,15 +38,15 @@ const logoutSVG = `<svg
   {title}
 </button>
 
-<script>
+<script is:inline>
   document.addEventListener('DOMContentLoaded', () => {
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) {
-      logoutButton.addEventListener('click', () => {
-        localStorage.removeItem('accessToken');
-        window.dispatchEvent(new CustomEvent('logout-success'));
-        window.location.href = '/'; // Redirigir a la página principal o de login
-      });
-    }
+    const btn = document.getElementById('logout-button'); // <-- aquí el id correcto
+    btn?.addEventListener('click', () => {
+      localStorage.removeItem('accessToken');
+      window.dispatchEvent(new CustomEvent('logout-success'));
+      const modal = document.getElementById('hs-user-menu-modal');
+      if (modal) modal.classList.add('hidden');
+      window.location.href = '/';
+    });
   });
 </script>

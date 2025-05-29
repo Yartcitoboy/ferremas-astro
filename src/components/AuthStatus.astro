@@ -2,35 +2,53 @@
 
 import Authentication from "src/components/sections/misc/Authentication.astro";
 import LogoutButton from "@components/ui/buttons/LogoutButton.astro";
+import UserMenu from "@components/ui/buttons/UserMenu.astro";
+
+let userName = "Usuario";
+if (typeof window !== "undefined") {
+  userName = localStorage.getItem("userName") || "Usuario";
+}
 ---
+
+
 
 <div class="flex items-center">
   <span id="login-button-container">
     <Authentication />
   </span>
-  <span id="logout-button-container" class="hidden ml-4">
-    <LogoutButton />
+  <span id="user-menu-container" class="hidden ml-4">
+    <UserMenu userName={userName}/>
   </span>
 </div>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const loginButtonContainer = document.getElementById('login-button-container');
-    const logoutButtonContainer = document.getElementById('logout-button-container');
+    const userMenuContainer = document.getElementById('user-menu-container');
 
     const updateAuthDisplay = () => {
       const isLoggedIn = localStorage.getItem('accessToken') !== null;
+      const userName = localStorage.getItem('userName') || 'Usuario';
       if (isLoggedIn) {
         if (loginButtonContainer) loginButtonContainer.classList.add('hidden');
-        if (logoutButtonContainer) logoutButtonContainer.classList.remove('hidden');
+        if (userMenuContainer) {
+          userMenuContainer.classList.remove('hidden');
+          // Actualiza el nombre en el menú (modal)
+          userMenuContainer.querySelectorAll('.user-menu-name').forEach(span => {
+            span.textContent = userName;
+          });
+          // Actualiza el nombre al lado del icono (botón)
+          userMenuContainer.querySelectorAll('.user-menu-name-btn').forEach(span => {
+            span.textContent = userName;
+          });
+        }
       } else {
         if (loginButtonContainer) loginButtonContainer.classList.remove('hidden');
-        if (logoutButtonContainer) logoutButtonContainer.classList.add('hidden');
+        if (userMenuContainer) userMenuContainer.classList.add('hidden');
       }
     };
 
     updateAuthDisplay();
-
     window.addEventListener('login-success', updateAuthDisplay);
     window.addEventListener('logout-success', updateAuthDisplay);
   });

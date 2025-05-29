@@ -106,6 +106,7 @@ const config = {
 
       if (response.ok) {
         localStorage.setItem('accessToken', data.access_token);
+        localStorage.setItem('userName', data.nombre_apellidos || 'Usuario'); // Ajusta el campo según tu API
         console.log('Token guardado:', data.access_token);
         try {
           const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]));

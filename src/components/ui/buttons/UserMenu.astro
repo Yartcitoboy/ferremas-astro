@@ -1,0 +1,49 @@
+---
+// filepath: d:\ScrewFast\src\components\ui\buttons\UserMenu.astro
+import LogoutButton from "@components/ui/buttons/LogoutButton.astro";
+const { userName = "" } = Astro.props;
+const modalId = "hs-user-menu-modal";
+---
+
+<!-- Botón de usuario -->
+<button
+  type="button"
+  class="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+  data-hs-overlay={`#${modalId}`}
+  aria-controls={modalId}
+  aria-label="Menú de usuario"
+>
+  <svg class="w-7 h-7 text-neutral-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 20c0-4 4-7 8-7s8 3 8 7" />
+  </svg>
+  <span class="hidden md:inline text-neutral-400 font-medium user-menu-name-btn">{userName}</span>
+</button>
+
+<!-- Modal tipo overlay -->
+<div
+  id={modalId}
+  class="hs-overlay fixed inset-0 z-50 hidden w-full h-full bg-black/40 flex items-center justify-center hs-overlay-backdrop-open:bg-black/40"
+  tabindex="-1"
+  aria-modal="true"
+  role="dialog"
+>
+  <div class="bg-white rounded-xl shadow-xl w-80 p-6 relative">
+    <button
+      type="button"
+      class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
+      data-hs-overlay={modalId}
+      aria-label="Cerrar menú"
+    >&times;</button>
+    <div class="flex flex-col items-center gap-2">
+      <svg class="w-14 h-14 text-blue-500 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 4-7 8-7s8 3 8 7" />
+      </svg>
+      <span class="font-semibold text-lg user-menu-name">{userName}</span>
+      <a href="/profile" class="w-full text-center py-2 rounded hover:bg-gray-100 text-blue-600 font-medium mt-4">Perfil</a>
+      <a href="/compras" class="w-full text-center py-2 rounded hover:bg-gray-100 text-blue-600 font-medium">Compras</a>
+      <LogoutButton />
+    </div>
+  </div>
+</div>

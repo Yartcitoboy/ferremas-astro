@@ -45,7 +45,7 @@ async def login(email: str = Form(...), contrasena: str = Form(...)):
 
         # Obtener información del usuario y su rol desde la tabla 'usuario'
         cursor.execute(
-            """SELECT u.rut, u.id_rol, r.nombre_rol
+            """SELECT u.nombre_apellidos, u.id_rol, r.nombre_rol
                FROM usuario u
                JOIN rol r ON u.id_rol = r.id_rol
                WHERE id_usuario = :id_usuario""",
@@ -58,12 +58,12 @@ async def login(email: str = Form(...), contrasena: str = Form(...)):
         if not user_info:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-        rut, id_rol, rol_name = user_info
+        nombre_apellidos, id_rol, rol_name = user_info
 
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token_data = {"sub": email, "role": rol_name}
         access_token = create_access_token(data=access_token_data, expires_delta=access_token_expires)
-        return {"access_token": access_token, "token_type": "bearer"}
+        return {"access_token": access_token, "token_type": "bearer","nombre_apellidos":nombre_apellidos, "id_rol": id_rol, "nombre_rol": rol_name}
 
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
@@ -132,13 +132,11 @@ def has_role(allowed_roles: list):
     return dependency
 
 ## PROTECION DE RUTAS@router.get("/me/", dependencies=[Depends(get_current_user)])
-async def read_users_me(current_user: dict = Depends(get_current_user)):
-    return current_user
 
 @router_auth.get("/admin-only/", dependencies=[Depends(has_role(["admin"]))])
 async def admin_only(current_user: dict = Depends(get_current_user)):
     return {"message": f"Hola administrador {current_user['nombre_apellidos']}"}
 
-@router_auth.get("/publico/")
-async def publico():
-    return {"message": "Esta ruta es pública"}
+@router_auth.get("/me/")
+async def read_users_me(current_user: dict = Depends(get_current_user)):
+    return current_user

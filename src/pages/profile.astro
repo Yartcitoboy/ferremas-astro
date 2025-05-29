@@ -1,0 +1,58 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+---
+
+<MainLayout>
+  <main class="flex justify-center items-center min-h-[60vh] bg-neutral-100">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8 border border-neutral-200 dark:bg-neutral-800 dark:border-neutral-700">
+      <div class="flex flex-col items-center mb-6">
+        <svg class="w-16 h-16 text-blue-500 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 4-7 8-7s8 3 8 7" />
+        </svg>
+        <h1 class="text-2xl font-bold text-neutral-800 dark:text-neutral-200">Mi Perfil</h1>
+      </div>
+      <div id="profile-content" class="text-neutral-700 dark:text-neutral-200">
+        <div class="flex justify-center py-8">
+          <span class="loading loading-spinner loading-lg text-blue-500"></span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('accessToken');
+      const content = document.getElementById('profile-content');
+      if (!token) {
+        content.innerHTML = '<div class="text-center text-red-500 font-semibold">No has iniciado sesión.</div>';
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:8000/usuarios_auth/me/', {
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+        const text = await res.text();
+        if (!res.ok) {
+          content.innerHTML = '<div class="text-center text-red-500 font-semibold">Error al cargar datos.</div>';
+          return;
+        }
+        const data = JSON.parse(text);
+        content.innerHTML = `
+          <ul class="divide-y divide-neutral-200 dark:divide-neutral-700">
+            <li class="py-3 flex justify-between"><span class="font-medium">Nombre:</span> <span>${data.nombre_apellidos || ''}</span></li>
+            <li class="py-3 flex justify-between"><span class="font-medium">RUT:</span> <span>${data.rut || ''}</span></li>
+            <li class="py-3 flex justify-between"><span class="font-medium">Dirección:</span> <span>${data.direccion || ''}</span></li>
+            <li class="py-3 flex justify-between"><span class="font-medium">Teléfono:</span> <span>${data.telefono || ''}</span></li>
+            <li class="py-3 flex justify-between"><span class="font-medium">Email:</span> <span>${data.email || ''}</span></li>
+            <li class="py-3 flex justify-between"><span class="font-medium">Rol:</span> <span>${data.nombre_rol || ''}</span></li>
+          </ul>
+        `;
+      } catch (e) {
+        content.innerHTML = '<div class="text-center text-red-500 font-semibold">Error de conexión.</div>';
+      }
+    });
+  </script>
+</MainLayout>
