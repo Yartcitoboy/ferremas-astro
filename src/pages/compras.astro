@@ -1,0 +1,56 @@
+---
+// src/pages/compras.astro
+import MainLayout from "@/layouts/MainLayout.astro";
+---
+
+<MainLayout title="Historial de Compras | ScrewFast">
+  <main class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+    <h1 class="text-2xl font-bold mb-6">Mis Compras</h1>
+    <div id="orders-content">
+      <p>Cargando historial...</p>
+    </div>
+  </main>
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const id_usuario = localStorage.getItem('id_usuario');
+      const content = document.getElementById('orders-content');
+      if (!id_usuario) {
+        content.innerHTML = '<p>No has iniciado sesión.</p>';
+        return;
+      }
+      try {
+  const res = await fetch(`http://localhost:6500/pedido/pedidos-usuario/${id_usuario}`);
+  const text = await res.text();
+  console.log('Respuesta del backend:', text);
+  const orders = JSON.parse(text);
+  if (!orders.length) {
+    content.innerHTML = '<p>No tienes ningún pedido aún.</p>';
+    return;
+  }
+  content.innerHTML = orders.map(order => `
+    <div class="border border-gray-200 rounded-lg p-4 mb-4">
+
+      <p class="text-sm text-gray-600">Fecha: ${order.fecha}</p>
+      <p class="text-sm text-gray-600">Estado: ${order.estado}</p>
+      <div>
+        ${(order.detalles || []).map(det => `
+          <div class="flex items-center gap-3 my-2">
+            <img src="${det.imagen}" alt="${det.nombre}" class="w-16 h-16 object-cover rounded" />
+            <div>
+              <div class="font-medium">${det.nombre}</div>
+              <div class="text-sm">Cantidad: <b>${det.cantidad}</b></div>
+              <div class="text-sm">Subtotal: <b>$${det.subtotal.toFixed(2)}</b></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <p class="font-bold text-gray-900 mt-2">Total: $${order.total.toFixed(2)}</p>
+    </div>
+  `).join('');
+} catch (e) {
+  console.error('Error al cargar historial:', e);
+  content.innerHTML = '<p>Error al cargar el historial de compras.</p>';
+}
+    });
+  </script>
+</MainLayout>

@@ -1,17 +1,17 @@
 import express from "express";
-import { getConnection } from "../src/lib/index.js"; 
+import { getConnection } from "../src/lib/index.js";
+import oracledb from "oracledb";
 
-const app = express();
 const router = express.Router();
 
-app.use(express.json());
-
+// ¡Asegúrate de tener esto en tu archivo principal!
+// app.use(express.json());
 
 router.get("/", async (req, res) => {
-    let cone;
-    try {
-        cone = await getConnection();
-        const result = await cone.execute(`SELECT
+  let cone;
+  try {
+    cone = await getConnection();
+    const result = await cone.execute(`SELECT
                     p.id_pedido,
                     u.nombre_apellidos AS usuario,
                     TO_CHAR(p.fecha_pedido, 'DD/MM/YYYY') AS fecha,
@@ -23,94 +23,203 @@ router.get("/", async (req, res) => {
                 FROM
                     pedido p
                 JOIN
-                    usuario u ON p.id_usuario_vendedor = u.id_usuario`
-        );
-        const pedidos = result.rows.map(row => ({
-            id_pedido: row[0],
-            cliente: row[1],
-            fecha: row[2],
-            estado: row[3],
-            vendedor: row[4],
-            total: row[7], // El total ahora está en la octava columna (índice 7)
-        }));
-        res.json(pedidos);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    } finally {
-        if (cone) await cone.close();
-    }
+                    usuario u ON p.id_usuario_vendedor = u.id_usuario`);
+    const pedidos = result.rows.map((row) => ({
+      id_pedido: row[0],
+      cliente: row[1],
+      fecha: row[2],
+      estado: row[3],
+      vendedor: row[4],
+      total: row[7],
+    }));
+    res.json(pedidos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (cone) await cone.close();
+  }
 });
 
-// Ruta para aprobar un pedido
+// Aprobar pedido
 router.post("/:id_pedido/aprobar", async (req, res) => {
-    const { id_pedido } = req.params;
-    let cone;
-    try {
-        cone = await getConnection();
-        const result = await cone.execute(
-            `UPDATE pedido SET estado = 'Aprobado' WHERE id_pedido = :id`,
-            [id_pedido]
-        );
-        await cone.commit();
-        if (result.rowsAffected > 0) {
-            res.json({ message: `Pedido ${id_pedido} aprobado` });
-        } else {
-            res.status(404).json({ error: `Pedido ${id_pedido} no encontrado` });
-        }
-    } catch (error) {
-        await cone.rollback();
-        res.status(500).json({ error: error.message });
-    } finally {
-        if (cone) await cone.close();
+  const { id_pedido } = req.params;
+  let cone;
+  try {
+    cone = await getConnection();
+    const result = await cone.execute(
+      `UPDATE pedido SET estado = 'Aprobado' WHERE id_pedido = :id`,
+      [id_pedido],
+    );
+    await cone.commit();
+    if (result.rowsAffected > 0) {
+      res.json({ message: `Pedido ${id_pedido} aprobado` });
+    } else {
+      res.status(404).json({ error: `Pedido ${id_pedido} no encontrado` });
     }
+  } catch (error) {
+    await cone.rollback();
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (cone) await cone.close();
+  }
 });
 
-// Ruta para eliminar un pedido
+// Eliminar pedido
 router.delete("/:id_pedido", async (req, res) => {
-    const { id_pedido } = req.params;
-    let cone;
-    try {
-        cone = await getConnection();
-        const result = await cone.execute(
-            "DELETE FROM pedido WHERE id_pedido = :id_pedido",
-            [id_pedido]
-        );
-        await cone.commit();
-        if (result.rowsAffected > 0) {
-            res.json({ mensaje: "Pedido eliminado con éxito" });
-        } else {
-            res.status(404).json({ error: "Pedido no encontrado" });
-        }
-    } catch (error) {
-        await cone.rollback();
-        res.status(500).json({ error: error.message });
-    } finally {
-        if (cone) await cone.close();
+  const { id_pedido } = req.params;
+  let cone;
+  try {
+    cone = await getConnection();
+    const result = await cone.execute(
+      "DELETE FROM pedido WHERE id_pedido = :id_pedido",
+      [id_pedido],
+    );
+    await cone.commit();
+    if (result.rowsAffected > 0) {
+      res.json({ mensaje: "Pedido eliminado con éxito" });
+    } else {
+      res.status(404).json({ error: "Pedido no encontrado" });
     }
+  } catch (error) {
+    await cone.rollback();
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (cone) await cone.close();
+  }
 });
 
-// Ruta para rechazar un pedido
+// Rechazar pedido
 router.post("/:id_pedido/rechazar", async (req, res) => {
-    const { id_pedido } = req.params;
-    let cone;
-    try {
-        cone = await getConnection();
-        const result = await cone.execute(
-            `UPDATE pedido SET estado = 'Rechazado' WHERE id_pedido = :id`,
-            [id_pedido]
-        );
-        await cone.commit();
-        if (result.rowsAffected > 0) {
-            res.json({ message: `Pedido ${id_pedido} rechazado` });
-        } else {
-            res.status(404).json({ error: `Pedido ${id_pedido} no encontrado` });
-        }
-    } catch (error) {
-        await cone.rollback();
-        res.status(500).json({ error: error.message });
-    } finally {
-        if (cone) await cone.close();
+  const { id_pedido } = req.params;
+  let cone;
+  try {
+    cone = await getConnection();
+    const result = await cone.execute(
+      `UPDATE pedido SET estado = 'Rechazado' WHERE id_pedido = :id`,
+      [id_pedido],
+    );
+    await cone.commit();
+    if (result.rowsAffected > 0) {
+      res.json({ message: `Pedido ${id_pedido} rechazado` });
+    } else {
+      res.status(404).json({ error: `Pedido ${id_pedido} no encontrado` });
     }
+  } catch (error) {
+    await cone.rollback();
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (cone) await cone.close();
+  }
+});
+
+// Crear pedido y detalles
+router.post("/pedidos-usuario", async (req, res) => {
+  console.log("POST /pedidos-usuario", req.body);
+  let cone;
+  try {
+    cone = await getConnection();
+    const { id_usuario, items, direccion_envio, total } = req.body;
+
+    // 1. Crear el pedido
+    const pedidoResult = await cone.execute(
+      `INSERT INTO pedido (id_usuario, direccion_envio, total) VALUES (:id_usuario, :direccion_envio, :total) RETURNING id_pedido INTO :id_pedido_out`,
+      {
+        id_usuario,
+        direccion_envio,
+        total,
+        id_pedido_out: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+      }
+    );
+    const id_pedido = pedidoResult.outBinds.id_pedido_out[0];
+
+    // 2. Insertar los detalles del pedido
+    for (const item of items) {
+      await cone.execute(
+        `INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio, subtotal) 
+         VALUES (:id_pedido, :id_producto, :cantidad, :precio, :subtotal)`,
+        [
+          id_pedido,
+          item.id_producto,
+          item.cantidad,
+          item.precio_unitario,
+          item.cantidad * item.precio_unitario,
+        ],
+      );
+      // Opcional: Actualizar el stock del producto
+      await cone.execute(
+        `UPDATE producto SET stock = stock - :cantidad WHERE id_producto = :id_producto`,
+        [item.cantidad, item.id_producto],
+      );
+    }
+
+    await cone.commit();
+    res.status(201).json({ message: "Pedido creado exitosamente", orderId: id_pedido });
+  } catch (error) {
+    if (cone) await cone.rollback();
+    console.error("Error al crear el pedido en la base de datos:", error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (cone) await cone.close();
+  }
+});
+
+// Historial de pedidos de usuario (con detalles)
+router.get("/pedidos-usuario/:id_usuario", async (req, res) => {
+  const { id_usuario } = req.params;
+  let cone;
+  try {
+    cone = await getConnection();
+    const pedidosResult = await cone.execute(
+      `SELECT
+        p.id_pedido,
+        TO_CHAR(p.fecha_pedido, 'DD/MM/YYYY') AS fecha_pedido,
+        p.estado,
+        p.direccion_envio,
+        p.total
+      FROM pedido p
+      WHERE p.id_usuario = :id_usuario
+      ORDER BY p.fecha_pedido DESC`,
+      [id_usuario],
+    );
+    const pedidos = [];
+    for (const row of pedidosResult.rows) {
+      const [id_pedido, fecha, estado, direccion_envio, total] = row;
+      const detallesResult = await cone.execute(
+        `SELECT
+          dp.id_producto,
+          pr.nombre,
+          pr.imagen,
+          dp.cantidad,
+          dp.precio,
+          dp.subtotal
+        FROM detalle_pedido dp
+        JOIN producto pr ON dp.id_producto = pr.id_producto
+        WHERE dp.id_pedido = :id_pedido`,
+        [id_pedido],
+      );
+      const detalles = detallesResult.rows.map((det) => ({
+        id_producto: det[0],
+        nombre: det[1],
+        imagen: det[2],
+        cantidad: det[3],
+        precio: det[4],
+        subtotal: det[5],
+      }));
+      pedidos.push({
+        id_pedido,
+        fecha,
+        estado,
+        direccion_envio,
+        total,
+        detalles,
+      });
+    }
+    res.json(pedidos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (cone) await cone.close();
+  }
 });
 
 export default router;

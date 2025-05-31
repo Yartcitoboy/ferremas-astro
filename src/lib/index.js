@@ -29,6 +29,7 @@ export { getConnection };
 
 // aqui le agregas la ruta a la que quieres acceder.
 app.use(cors()); // Habilitar CORS para todas las rutas
+app.use(express.json());
 app.use("/product", productRoutes); 
 app.use("/pedido", pedidoRoutes); 
 

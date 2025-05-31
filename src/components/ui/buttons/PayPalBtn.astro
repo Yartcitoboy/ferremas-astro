@@ -9,13 +9,13 @@ const clientID = import.meta.env.PAYPAL_CLIENT_ID;
 <script is:inline>
   paypal.Buttons({
     createOrder: function(data, actions) {
-      return fetch('/api/create-paypal-order', { // Ajusta la ruta si es necesario
+      return fetch('/api/create-paypal-order', {
         method: 'post',
         headers: {
           'content-type': 'application/json'
         },
         body: JSON.stringify({
-          items: Astro.props.items // Usamos la prop 'items' que pasamos al componente
+          items: Astro.props.items
         })
       }).then(function(res) {
         return res.json();
@@ -23,8 +23,9 @@ const clientID = import.meta.env.PAYPAL_CLIENT_ID;
         return orderData.id;
       });
     },
-    onApprove: function(data, actions) {
-      return fetch('/api/capture-paypal-order', { // Ajusta la ruta si es necesario
+    onApprove: async function(data, actions) {
+      // 1. Captura el pago en tu backend
+      const captureRes = await fetch('/api/capture-paypal-order', {
         method: 'post',
         headers: {
           'content-type': 'application/json'
@@ -32,12 +33,30 @@ const clientID = import.meta.env.PAYPAL_CLIENT_ID;
         body: JSON.stringify({
           orderID: data.orderID
         })
-      }).then(function(res) {
-        return res.json();
-      }).then(function(orderData) {
-        console.log('Orden aprobada:', orderData);
-        // Redirige o muestra un mensaje de éxito
       });
+      const orderData = await captureRes.json();
+      console.log('Orden aprobada:', orderData);
+
+      // 2. Crea el pedido en tu base de datos
+      // Obtén los datos necesarios para el pedido
+      const id_usuario = localStorage.getItem('id_usuario'); // Asegúrate de guardar el userId al hacer login
+      const items = Astro.props.items;
+      const direccion_envio = localStorage.getItem('direccion_envio') || 'Dirección no especificada';
+      const total = orderData.purchase_units?.[0]?.amount?.value || 0;
+
+      console.log('Enviando pedido:', { id_usuario, items, direccion_envio, total });
+      await fetch('http://localhost:6500/pedido/pedidos-usuario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario, items, direccion_envio, total })
+      }).then(res => res.json())
+        .then(data => {
+          console.log('Pedido creado:', data); // <-- Aquí verás el mensaje y el orderId
+      });
+
+      // 3. Limpia el carrito y redirige
+      localStorage.removeItem('cart');
+      window.location.href = '/tranks/gracias-por-tu-compra';
     },
     onError: function(err) {
       console.error('Error de PayPal:', err);

@@ -63,7 +63,7 @@ async def login(email: str = Form(...), contrasena: str = Form(...)):
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token_data = {"sub": email, "role": rol_name}
         access_token = create_access_token(data=access_token_data, expires_delta=access_token_expires)
-        return {"access_token": access_token, "token_type": "bearer","nombre_apellidos":nombre_apellidos, "id_rol": id_rol, "nombre_rol": rol_name}
+        return {"access_token": access_token, "token_type": "bearer","nombre_apellidos":nombre_apellidos, "id_usuario": id_usuario_credencial, "id_rol": id_rol, "nombre_rol": rol_name}
 
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
