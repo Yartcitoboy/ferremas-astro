@@ -112,7 +112,7 @@ router.post("/:id_pedido/rechazar", async (req, res) => {
   }
 });
 
-// Crear pedido y detalles
+// Crear pedido y detalles --------------------------------------------------------------------------------
 router.post("/pedidos-usuario", async (req, res) => {
   console.log("POST /pedidos-usuario", req.body);
   let cone;
@@ -153,7 +153,7 @@ router.post("/pedidos-usuario", async (req, res) => {
     }
 
     await cone.commit();
-    res.status(201).json({ message: "Pedido creado exitosamente", orderId: id_pedido });
+    res.status(201).json({ message: "Pedido creado exitosamente", id_pedido });
   } catch (error) {
     if (cone) await cone.rollback();
     console.error("Error al crear el pedido en la base de datos:", error);
@@ -173,6 +173,7 @@ router.get("/pedidos-usuario/:id_usuario", async (req, res) => {
       `SELECT
         p.id_pedido,
         TO_CHAR(p.fecha_pedido, 'DD/MM/YYYY') AS fecha_pedido,
+        TO_CHAR(p.fecha_entrega, 'DD/MM/YYYY') AS fecha_entrega,
         p.estado,
         p.direccion_envio,
         p.total
@@ -183,7 +184,7 @@ router.get("/pedidos-usuario/:id_usuario", async (req, res) => {
     );
     const pedidos = [];
     for (const row of pedidosResult.rows) {
-      const [id_pedido, fecha, estado, direccion_envio, total] = row;
+      const [id_pedido, fecha, fecha_entrega, estado, direccion_envio, total] = row;
       const detallesResult = await cone.execute(
         `SELECT
           dp.id_producto,
@@ -208,6 +209,7 @@ router.get("/pedidos-usuario/:id_usuario", async (req, res) => {
       pedidos.push({
         id_pedido,
         fecha,
+        fecha_entrega,
         estado,
         direccion_envio,
         total,
@@ -219,6 +221,121 @@ router.get("/pedidos-usuario/:id_usuario", async (req, res) => {
     res.status(500).json({ error: error.message });
   } finally {
     if (cone) await cone.close();
+  }
+});
+
+//BODEGUERO
+
+router.get("/pedidos/preparar", async (req, res) => {
+  const cone = await getConnection();
+  try {
+    const result = await cone.execute(
+      `SELECT id_pedido, id_usuario, estado
+       FROM pedido
+       WHERE estado = 'Preparando'
+       ORDER BY id_pedido DESC`
+    );
+    res.json({
+      pedidos: result.rows.map(row => ({
+        id_pedido: row[0],
+        id_usuario: row[1],
+        estado: row[2],
+      })),
+    });
+  } catch (e) {
+    res.status(500).json({ pedidos: [] }); // <-- Corrige aquí también
+  } finally {
+    await cone.close();
+  }
+});
+
+router.post("/pedido/:id/listo", async (req, res) => {
+  const cone = await getConnection();
+  try {
+    const id_pedido = req.params.id;
+    await cone.execute(
+      `UPDATE pedido SET estado = 'Listo para entrega' WHERE id_pedido = :id_pedido`,
+      [id_pedido]
+    );
+    await cone.commit();
+    res.json({ message: "Pedido listo para entrega" });
+  } catch (e) {
+    await cone.rollback();
+    res.status(500).json({ error: e.message });
+  } finally {
+    await cone.close();
+  }
+});
+
+router.get("/despacho", async (req, res) => {
+  const cone = await getConnection();
+  try {
+    const result = await cone.execute(
+      `SELECT id_pedido, id_usuario, fecha_entrega, direccion_envio, estado
+       FROM pedido
+       WHERE estado = 'Listo para entrega'
+       ORDER BY fecha_pedido DESC`
+    );
+    res.json(
+      result.rows.map(row => ({
+        id_pedido: row[0],
+        id_usuario: row[1],
+        fecha_entrega: row[2],
+        direccion_envio: row[3],
+        estado: row[4],
+      }))
+    );
+  } catch (e) {
+    res.status(500).json([]);
+  } finally {
+    await cone.close();
+  }
+});
+
+// VENDEDOR
+
+router.patch("/despacho/:id", async (req, res) => {
+  const cone = await getConnection();
+  try {
+    const id_pedido = req.params.id;
+    const { fecha_entrega, direccion_envio, estado } = req.body;
+    console.log("PATCH /despacho/:id", { id_pedido, fecha_entrega, direccion_envio, estado }); // <-- LOG
+    const campos = [];
+    const valores = [];
+
+    if (fecha_entrega) {
+      campos.push("fecha_entrega = TO_DATE(:fecha_entrega, 'yyyy-mm-dd')");
+      valores.push(fecha_entrega);
+    }
+    if (direccion_envio) {
+      campos.push("direccion_envio = :direccion_envio");
+      valores.push(direccion_envio);
+    }
+    if (estado) {
+      campos.push("estado = :estado");
+      valores.push(estado);
+    }
+    valores.push(id_pedido);
+
+    if (campos.length === 0) {
+      console.log("No hay campos para actualizar"); // <-- LOG
+      return res.status(400).json({ error: "No hay campos para actualizar" });
+    }
+
+    console.log("Campos a actualizar:", campos, "Valores:", valores); // <-- LOG
+
+    await cone.execute(
+      `UPDATE pedido SET ${campos.join(", ")} WHERE id_pedido = :id_pedido`,
+      valores
+    );
+    await cone.commit();
+    res.json({ message: "Pedido actualizado" });
+  } catch (e) {
+    await cone.rollback();
+    console.error("Error en PATCH /despacho/:id:", e); // <-- LOG
+    res.status(500).json({ error: e.message });
+  } finally {
+    await cone.close();
   }
 });
 

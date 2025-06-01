@@ -1,284 +1,277 @@
 ---
-// Importa las dependencias necesarias
 import { Truck } from "@lucide/astro";
 import MainLayout from "@/layouts/MainLayout.astro";
 ---
 
 <MainLayout>
   <div class="flex min-h-screen flex-col bg-neutral-900 text-white">
-    <header class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6">
-      <h1 class="text-xl font-semibold text-orange-500">Panel de Vendedor</h1>
+    <header
+      class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-8"
+    >
+      <h1 class="text-2xl font-bold tracking-wide text-orange-500">
+        Panel de Vendedor
+      </h1>
     </header>
 
-    <nav class="flex border-b border-neutral-700 bg-neutral-800">
-      <button class="px-6 py-3 focus:outline-none focus:bg-neutral-700 active bg-neutral-700" data-tab="inventario">Inventario</button>
-      <button class="px-6 py-3 focus:outline-none focus:bg-neutral-700" data-tab="pedidos">Pedidos</button>
-      <button class="px-6 py-3 focus:outline-none focus:bg-neutral-700" data-tab="despachos">Despachos</button>
+    <nav
+      class="flex gap-4 border-b border-neutral-700 bg-neutral-800 px-8 py-4"
+    >
+      <button
+        class="tab-btn active rounded-lg bg-neutral-700 px-6 py-3 font-semibold"
+        data-tab="inventario">Inventario</button
+      >
+      <button
+        class="tab-btn rounded-lg px-6 py-3 font-semibold"
+        data-tab="pedidos">Pedidos</button
+      >
+      <button
+        class="tab-btn rounded-lg px-6 py-3 font-semibold"
+        data-tab="despachos">Despachos</button
+      >
     </nav>
 
-    <!-- Inventario -->
-    <section id="inventario" class="p-6">
-      <h2 class="text-lg font-semibold text-orange-500">Inventario</h2>
-      <table class="w-full border-collapse text-left text-sm text-neutral-400">
-        <thead class="bg-neutral-700 text-neutral-300">
-          <tr>
-            <th class="border border-neutral-700 px-4 py-2">Código</th>
-            <th class="border border-neutral-700 px-4 py-2">Nombre</th>
-            <th class="border border-neutral-700 px-4 py-2">Categoría</th>
-            <th class="border border-neutral-700 px-4 py-2">Stock</th>
-            <th class="border border-neutral-700 px-4 py-2">Precio</th>
-          </tr>
-        </thead>
-        <tbody id="inventario-tbody">
-          <!-- Se puede llenar con Astro o JS si quieres hacerlo dinámico -->
-        </tbody>
-      </table>
-    </section>
+    <main class="flex-1 space-y-10 px-8 py-6">
+      <!-- Inventario -->
+      <section id="inventario" class="">
+        <h2 class="mb-4 text-xl font-semibold text-orange-400">Inventario</h2>
+        <div
+          class="overflow-x-auto rounded-lg border border-neutral-700 bg-neutral-800 shadow"
+        >
+          <table
+            class="min-w-full border-collapse text-left text-sm text-neutral-300"
+          >
+            <thead class="bg-neutral-700 text-neutral-200">
+              <tr>
+                <th class="border-b border-neutral-700 px-6 py-3">Código</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Nombre</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Categoría</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Stock</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Precio</th>
+              </tr>
+            </thead>
+            <tbody id="inventario-tbody"></tbody>
+          </table>
+        </div>
+      </section>
 
-    <!-- Pedidos -->
-    <section id="pedidos" class="hidden p-6">
-      <h2 class="text-lg font-semibold text-orange-500">Pedidos</h2>
-      <table class="w-full border-collapse text-left text-sm text-neutral-400">
-        <thead class="bg-neutral-700 text-neutral-300">
-          <tr>
-            <th class="border border-neutral-700 px-4 py-2">N° Pedidos</th>
-            <th class="border border-neutral-700 px-4 py-2">Cliente</th>
-            <th class="border border-neutral-700 px-4 py-2">Fecha</th>
-            <th class="border border-neutral-700 px-4 py-2">Total</th>
-            <th class="border border-neutral-700 px-4 py-2">Estado</th>
-            <th class="border border-neutral-700 px-4 py-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="pedidos-tbody">
-          <!-- Se llena con JS -->
-        </tbody>
-      </table>
-    </section>
+      <!-- Pedidos -->
+      <section id="pedidos" class="hidden">
+        <h2 class="mb-4 text-xl font-semibold text-orange-400">Pedidos</h2>
+        <div
+          class="overflow-x-auto rounded-lg border border-neutral-700 bg-neutral-800 shadow"
+        >
+          <table
+            class="min-w-full border-collapse text-left text-sm text-neutral-300"
+          >
+            <thead class="bg-neutral-700 text-neutral-200">
+              <tr>
+                <th class="border-b border-neutral-700 px-6 py-3">N° Pedido</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Cliente</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Fecha</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Total</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Estado</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="pedidos-tbody"></tbody>
+          </table>
+        </div>
+      </section>
 
-    <!-- Despachos -->
-    <section id="despachos" class="hidden p-6">
-      <h2 class="text-lg font-semibold text-orange-500">Despachos</h2>
-      <table class="w-full border-collapse text-left text-sm text-neutral-400">
-        <thead class="bg-neutral-700 text-neutral-300">
-          <tr>
-            <th class="border border-neutral-700 px-4 py-2">N° Despacho</th>
-            <th class="border border-neutral-700 px-4 py-2">N° Pedido</th>
-            <th class="border border-neutral-700 px-4 py-2">Fecha de Envío</th>
-            <th class="border border-neutral-700 px-4 py-2">Dirección</th>
-            <th class="border border-neutral-700 px-4 py-2">Estado</th>
-            <th class="border border-neutral-700 px-4 py-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="despachos-tbody">
-          <!-- Se llena con JS -->
-        </tbody>
-      </table>
-    </section>
+      <!-- Despachos -->
+      <section id="despachos" class="hidden">
+        <h2
+          class="mb-4 flex items-center gap-2 text-xl font-semibold text-orange-400"
+        >
+          <Truck class="h-6 w-6 text-orange-400" /> Despachos
+        </h2>
+        <div
+          class="overflow-x-auto rounded-lg border border-neutral-700 bg-neutral-800 shadow"
+        >
+          <table
+            class="min-w-full border-collapse text-left text-sm text-neutral-300"
+          >
+            <thead class="bg-neutral-700 text-neutral-200">
+              <tr>
+                <th class="border-b border-neutral-700 px-6 py-3"
+                  >N° Despacho</th
+                >
+                <th class="border-b border-neutral-700 px-6 py-3">N° Pedido</th>
+                <th class="border-b border-neutral-700 px-6 py-3"
+                  >Fecha de Envío</th
+                >
+                <th class="border-b border-neutral-700 px-6 py-3">Dirección</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Estado</th>
+                <th class="border-b border-neutral-700 px-6 py-3">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="despachos-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script type="module">
-    // --- Datos globales ---
-    let pedidosData = [];
-    let despachosData = [];
-    let inventarioData = [];
-
-    // --- Fetch Inventario ---
-    async function fetchInventarioCliente() {
-      try {
-        const response = await fetch("http://localhost:6500/product");
-        if (!response.ok) throw new Error("Error al obtener inventario");
-        inventarioData = await response.json();
-        renderInventarioTable();
-      } catch (error) {
-        console.error("Error al obtener inventario:", error);
-      }
-    }
-
-    // --- Fetch Pedidos ---
-    async function fetchPedidosCliente() {
-      try {
-        const response = await fetch("http://localhost:6500/pedido");
-        if (!response.ok) throw new Error("Error al obtener pedidos");
-        pedidosData = await response.json();
-        renderPedidosTable();
-      } catch (error) {
-        console.error("Error al obtener pedidos en el cliente:", error);
-      }
-    }
-
-    // --- Fetch Despachos ---
-    async function fetchDespachosCliente() {
-      try {
-        const response = await fetch("http://localhost:6500/despacho");
-        if (!response.ok) throw new Error("Error al obtener despachos");
-        despachosData = await response.json();
-        renderDespachosTable();
-      } catch (error) {
-        console.error("Error al obtener despachos:", error);
-      }
-    }
-
-    // --- Render Inventario ---
-    function renderInventarioTable() {
-      const tbody = document.getElementById('inventario-tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      inventarioData.forEach(producto => {
-        const row = document.createElement('tr');
-        row.classList.add('hover:bg-neutral-700');
-        row.innerHTML = `
-          <td class="border border-neutral-700 px-4 py-2">${producto.id_producto}</td>
-          <td class="border border-neutral-700 px-4 py-2">${producto.nombre}</td>
-          <td class="border border-neutral-700 px-4 py-2">${producto.categoria}</td>
-          <td class="border border-neutral-700 px-4 py-2">${producto.stock}</td>
-          <td class="border border-neutral-700 px-4 py-2">$${producto.precio}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    // --- Render Pedidos ---
-    function renderPedidosTable() {
-      const tbody = document.getElementById('pedidos-tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      pedidosData.forEach(pedido => {
-        const row = document.createElement('tr');
-        row.classList.add('hover:bg-neutral-700');
-        row.innerHTML = `
-          <td class="border border-neutral-700 px-4 py-2">${pedido.id_pedido}</td>
-          <td class="border border-neutral-700 px-4 py-2">${pedido.cliente}</td>
-          <td class="border border-neutral-700 px-4 py-2">${pedido.fecha}</td>
-          <td class="border border-neutral-700 px-4 py-2">$${pedido.total}</td>
-          <td class="border border-neutral-700 px-4 py-2">${pedido.estado}</td>
-          <td class="border border-neutral-700 px-4 py-2">
-            <button class="text-indigo-500 hover:text-indigo-600 mr-2 aprobar-btn" title="Aprobar" data-pedido-id="${pedido.id_pedido}">✔️</button>
-            <button class="text-red-500 hover:text-red-600 rechazar-btn" title="Rechazar" data-pedido-id="${pedido.id_pedido}">❌</button>
+    // --- Configuración de endpoints y columnas ---
+    const config = {
+      inventario: {
+        url: "http://localhost:6500/product",
+        renderRow: (p) => `
+          <td class="px-6 py-3">${p.id_producto}</td>
+          <td class="px-6 py-3">${p.nombre}</td>
+          <td class="px-6 py-3">${p.categoria}</td>
+          <td class="px-6 py-3">${p.stock}</td>
+          <td class="px-6 py-3">$${p.precio}</td>
+        `,
+      },
+      pedidos: {
+        url: "http://localhost:6500/pedido",
+        renderRow: (p) => `
+          <td class="px-6 py-3">${p.id_pedido}</td>
+          <td class="px-6 py-3">${p.cliente}</td>
+          <td class="px-6 py-3">${p.fecha}</td>
+          <td class="px-6 py-3">$${p.total}</td>
+          <td class="px-6 py-3">${p.estado}</td>
+          <td class="px-6 py-3">
+            <button class="text-indigo-500 hover:text-indigo-600 aprobar-btn" title="Aprobar" data-id="${p.id_pedido}">✔️</button>
+            <button class="text-red-500 hover:text-red-600 rechazar-btn" title="Rechazar" data-id="${p.id_pedido}">❌</button>
           </td>
-        `;
-        tbody.appendChild(row);
-      });
+        `,
+      },
+      despachos: {
+        url: "http://localhost:6500/despacho",
+        renderRow: (d) => `
+  <td class="px-6 py-3">${d.id_despacho ?? d.id_pedido}</td>
+  <td class="px-6 py-3">${d.id_pedido}</td>
+  <td class="px-6 py-3">
+    <input type="date" value="${d.fecha_entrega ? d.fecha_entrega.split("T")[0] : ""}" class="fecha-entrega-input bg-neutral-700 text-white px-2 py-1 rounded" data-id="${d.id_pedido}" />
+  </td>
+  <td class="px-6 py-3">
+    <input type="text" value="${d.direccion_envio ?? ""}" class="direccion-envio-input bg-neutral-700 text-white px-2 py-1 rounded" data-id="${d.id_pedido}" />
+  </td>
+  <td class="px-6 py-3">${d.estado}</td>
+  <td class="px-6 py-3 flex gap-2">
+    <button class="btn-actualizar bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded" data-id="${d.id_pedido}">Actualizar</button>
+    <button class="btn-entregar bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded" data-id="${d.id_pedido}">Confirmar Entrega</button>
+  </td>
+`,
+      },
+    };
 
-      // Listeners para aprobar/rechazar
-      tbody.querySelectorAll('.aprobar-btn').forEach(button => {
-        button.addEventListener('click', () => {
-          const idPedido = parseInt(button.dataset.pedidoId, 10);
-          aprobarPedido(idPedido);
-        });
-      });
-      tbody.querySelectorAll('.rechazar-btn').forEach(button => {
-        button.addEventListener('click', () => {
-          const idPedido = parseInt(button.dataset.pedidoId, 10);
-          rechazarPedido(idPedido);
-        });
-      });
-    }
-
-    // --- Render Despachos ---
-    function renderDespachosTable() {
-      const tbody = document.getElementById('despachos-tbody');
+    // --- Renderizado genérico de tablas ---
+    async function fetchAndRender(tab) {
+      const { url, renderRow } = config[tab];
+      const tbody = document.getElementById(`${tab}-tbody`);
       if (!tbody) return;
-      tbody.innerHTML = '';
-      despachosData.forEach(despacho => {
-        const row = document.createElement('tr');
-        row.classList.add('hover:bg-neutral-700');
-        row.innerHTML = `
-          <td class="border border-neutral-700 px-4 py-2">${despacho.id_despacho}</td>
-          <td class="border border-neutral-700 px-4 py-2">${despacho.id_pedido}</td>
-          <td class="border border-neutral-700 px-4 py-2">${despacho.fecha_envio}</td>
-          <td class="border border-neutral-700 px-4 py-2">${despacho.direccion}</td>
-          <td class="border border-neutral-700 px-4 py-2">${despacho.estado}</td>
-          <td class="border border-neutral-700 px-4 py-2">
-            <button class="text-blue-500 hover:text-blue-600" title="Enviar a Bodega">
-              <svg class="inline-block w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 17v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M16 21v-4M8 21v-4M12 17v4M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"></path></svg>
-            </button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
+      tbody.innerHTML = "<tr><td colspan='100%'>Cargando...</td></tr>";
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Error al obtener datos");
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : data[tab] || data;
+        tbody.innerHTML = "";
+        items.forEach((item) => {
+          const row = document.createElement("tr");
+          row.classList.add("hover:bg-neutral-700");
+          row.innerHTML = renderRow(item);
+          tbody.appendChild(row);
+        });
+        if (tab === "pedidos") addPedidosListeners();
+        if (tab === "despachos") addDespachosListeners();
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan='100%'>Error al cargar datos</td></tr>`;
+        console.error(e);
+      }
     }
 
     // --- Acciones de pedidos ---
-    async function aprobarPedido(idPedido) {
-      try {
-        const response = await fetch(`http://localhost:6500/pedido/${idPedido}/aprobar`, { method: 'POST' });
-        const data = await response.json();
-        if (response.ok) {
-          pedidosData = pedidosData.map(pedido =>
-            pedido.id_pedido === idPedido ? { ...pedido, estado: 'Aprobado' } : pedido
-          );
-          renderPedidosTable();
-        } else {
-          alert(`Error al aprobar el pedido ${idPedido}: ${data.error || 'Desconocido'}`);
-        }
-      } catch (error) {
-        console.error("Error al aprobar el pedido:", error);
-        alert("Error al comunicarse con el servidor para aprobar el pedido.");
-      }
+    function addPedidosListeners() {
+      document.querySelectorAll(".aprobar-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.id;
+          await fetch(`http://localhost:6500/pedido/${id}/aprobar`, {
+            method: "POST",
+          });
+          fetchAndRender("pedidos");
+        });
+      });
+      document.querySelectorAll(".rechazar-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.id;
+          await fetch(`http://localhost:6500/pedido/${id}/rechazar`, {
+            method: "POST",
+          });
+          fetchAndRender("pedidos");
+        });
+      });
     }
 
-    async function rechazarPedido(idPedido) {
-      try {
-        const responseRechazar = await fetch(`http://localhost:6500/pedido/${idPedido}/rechazar`, { method: 'POST' });
-        const dataRechazar = await responseRechazar.json();
-        if (responseRechazar.ok) {
-          const responseEliminar = await fetch(`http://localhost:6500/pedido/${idPedido}`, { method: 'DELETE' });
-          const dataEliminar = await responseEliminar.json();
-          if (responseEliminar.ok) {
-            pedidosData = pedidosData.filter(pedido => pedido.id_pedido !== idPedido);
-            renderPedidosTable();
-          } else {
-            alert(`Error al eliminar el pedido ${idPedido}: ${dataEliminar.error || 'Desconocido'}`);
-            pedidosData = pedidosData.map(pedido =>
-              pedido.id_pedido === idPedido ? { ...pedido, estado: 'Rechazado' } : pedido
-            );
-            renderPedidosTable();
-          }
-        } else {
-          alert(`Error al rechazar el pedido ${idPedido}: ${dataRechazar.error || 'Desconocido'}`);
-        }
-      } catch (error) {
-        console.error("Error al rechazar el pedido:", error);
-        alert("Error al comunicarse con el servidor para rechazar el pedido.");
-      }
+    // --- Acciones de despachos ---
+    function addDespachosListeners() {
+      // Actualizar fecha y dirección
+      // Actualizar fecha_entrega y direccion_envio
+      document.querySelectorAll(".btn-actualizar").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.id;
+          const fecha = document.querySelector(
+            `.fecha-entrega-input[data-id="${id}"]`
+          ).value;
+          const direccion = document.querySelector(
+            `.direccion-envio-input[data-id="${id}"]`
+          ).value;
+          await fetch(`http://localhost:6500/despacho/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fecha_entrega: fecha,
+              direccion_envio: direccion,
+            }),
+          });
+          fetchAndRender("despachos");
+        });
+      });
+
+      // Confirmar entrega
+      document.querySelectorAll(".btn-entregar").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.id;
+          await fetch(`http://localhost:6500/despacho/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ estado: "Entregado" }),
+          });
+          fetchAndRender("despachos");
+        });
+      });
     }
 
     // --- Tabs ---
-    document.addEventListener('DOMContentLoaded', () => {
-      fetchInventarioCliente();
-      fetchPedidosCliente();
-      fetchDespachosCliente();
-
-      const tabs = document.querySelectorAll('[data-tab]');
+    document.addEventListener("DOMContentLoaded", () => {
+      const tabs = document.querySelectorAll(".tab-btn");
       const sections = {
-        inventario: document.getElementById('inventario'),
-        pedidos: document.getElementById('pedidos'),
-        despachos: document.getElementById('despachos'),
+        inventario: document.getElementById("inventario"),
+        pedidos: document.getElementById("pedidos"),
+        despachos: document.getElementById("despachos"),
       };
 
-      if (!sections.inventario || !sections.pedidos || !sections.despachos) {
-        console.error('Una o más secciones no se encontraron en el DOM.');
-        return;
-      }
-
       // Mostrar la primera sección por defecto
-      sections.inventario.classList.remove('hidden');
-      tabs.forEach(tab => {
-        if (tab.dataset.tab === 'inventario') {
-          tab.classList.add('active', 'bg-neutral-700');
-        } else {
-          tab.classList.remove('active', 'bg-neutral-700');
-        }
-      });
+      Object.values(sections).forEach((section) =>
+        section.classList.add("hidden")
+      );
+      sections.inventario.classList.remove("hidden");
+      fetchAndRender("inventario");
 
-      tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
           const target = tab.dataset.tab;
-          if (!target) return;
-          Object.values(sections).forEach(section => section.classList.add('hidden'));
-          if (sections[target]) sections[target].classList.remove('hidden');
-          tabs.forEach(t => t.classList.remove('active', 'bg-neutral-700'));
-          tab.classList.add('active', 'bg-neutral-700');
+          Object.values(sections).forEach((section) =>
+            section.classList.add("hidden")
+          );
+          if (sections[target]) sections[target].classList.remove("hidden");
+          tabs.forEach((t) => t.classList.remove("active", "bg-neutral-700"));
+          tab.classList.add("active", "bg-neutral-700");
+          fetchAndRender(target);
         });
       });
     });

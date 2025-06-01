@@ -1,7 +1,8 @@
 // index.js
 import express from "express";
 import cors from "cors"; // Asegúrate de que la ruta sea correcta
-import productRoutes from "../../routers/product.js"; 
+import productRoutes from "../../routers/product.js";
+import pagoRoutes from "../../routers/pago.js"; // Asegúrate de que la ruta sea correcta
 import pedidoRoutes from "../../routers/pedido.js"; // Asegúrate de que la ruta sea correcta
 import dotenv from "dotenv"; // Asegúrate de que la ruta sea correcta
 import oracledb from "oracledb"; // Asegúrate de que la ruta sea correcta
@@ -31,7 +32,8 @@ export { getConnection };
 app.use(cors()); // Habilitar CORS para todas las rutas
 app.use(express.json());
 app.use("/product", productRoutes); 
-app.use("/pedido", pedidoRoutes); 
+app.use("/", pedidoRoutes);
+app.use("/", pagoRoutes); // Asegúrate de que la ruta sea correcta
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

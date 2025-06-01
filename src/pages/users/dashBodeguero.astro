@@ -1,175 +1,63 @@
 ---
 // filepath: d:\ScrewFast\src\pages\users\dashBodeguero.astro
-import { Package, ClipboardCheck, Truck, CheckCircle, XCircle, Search } from "@lucide/astro";
+import { Package } from "@lucide/astro";
 import MainLayout from "@/layouts/MainLayout.astro";
-
-const pedidosData = [
-  { id: "ORD-2023-001", cliente: "Juan Pérez", fecha: "15/04/2023", total: 329.98, estado: "Pendiente" },
-  { id: "ORD-2023-002", cliente: "María López", fecha: "16/04/2023", total: 199.99, estado: "Preparando" },
-  { id: "ORD-2023-003", cliente: "Carlos Rodríguez", fecha: "16/04/2023", total: 479.98, estado: "Listo para entrega" },
-];
 ---
 
 <MainLayout>
   <div class="flex min-h-screen flex-col bg-neutral-900 text-white">
-    <!-- Header -->
     <header class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6">
       <h1 class="text-xl font-semibold text-orange-500">Panel de Bodeguero</h1>
     </header>
 
-    <!-- Navigation Bar -->
-    <nav class="flex items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6 py-3">
-      <button
-        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
-        data-tab="#ordenes"
-      >
-        <ClipboardCheck class="h-5 w-5 text-orange-500" />
-        Órdenes de Pedidos
-      </button>
-      <button
-        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
-        data-tab="#preparar"
-      >
-        <Package class="h-5 w-5 text-orange-500" />
-        Preparar Pedidos
-      </button>
-      <button
-        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
-        data-tab="#entregar"
-      >
-        <Truck class="h-5 w-5 text-orange-500" />
-        Entregar Pedidos
-      </button>
-      <div class="ml-auto flex items-center gap-2">
-        <input
-          type="text"
-          id="search"
-          placeholder="Buscar..."
-          class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-        />
-        <button
-          id="filter"
-          class="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white hover:bg-neutral-700"
-        >
-          <Search class="h-5 w-5 text-orange-500" />
-          Filtrar
-        </button>
-      </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="flex flex-1">
-      <main class="flex-1 p-6">
-        <!-- Órdenes de Pedidos -->
-        <div id="ordenes" class="tab-content">
-          <h2 class="text-lg font-semibold text-orange-500">Órdenes de Pedidos</h2>
-          <table class="w-full border-collapse text-left text-sm text-neutral-400">
-            <thead class="bg-neutral-700 text-neutral-300">
-              <tr>
-                <th class="border border-neutral-700 px-4 py-2">N° Pedido</th>
-                <th class="border border-neutral-700 px-4 py-2">Cliente</th>
-                <th class="border border-neutral-700 px-4 py-2">Fecha</th>
-                <th class="border border-neutral-700 px-4 py-2">Total</th>
-                <th class="border border-neutral-700 px-4 py-2">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pedidosData.map((pedido) => (
-                <tr class="hover:bg-neutral-700">
-                  <td class="border border-neutral-700 px-4 py-2">{pedido.id}</td>
-                  <td class="border border-neutral-700 px-4 py-2">{pedido.cliente}</td>
-                  <td class="border border-neutral-700 px-4 py-2">{pedido.fecha}</td>
-                  <td class="border border-neutral-700 px-4 py-2">${pedido.total.toFixed(2)}</td>
-                  <td class="border border-neutral-700 px-4 py-2">{pedido.estado}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Preparar Pedidos -->
-        <div id="preparar" class="tab-content hidden">
-          <h2 class="text-lg font-semibold text-orange-500">Preparar Pedidos</h2>
-          <table class="w-full border-collapse text-left text-sm text-neutral-400">
-            <thead class="bg-neutral-700 text-neutral-300">
-              <tr>
-                <th class="border border-neutral-700 px-4 py-2">N° Pedido</th>
-                <th class="border border-neutral-700 px-4 py-2">Cliente</th>
-                <th class="border border-neutral-700 px-4 py-2">Estado</th>
-                <th class="border border-neutral-700 px-4 py-2">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pedidosData
-                .filter((pedido) => pedido.estado === "Pendiente")
-                .map((pedido) => (
-                  <tr class="hover:bg-neutral-700">
-                    <td class="border border-neutral-700 px-4 py-2">{pedido.id}</td>
-                    <td class="border border-neutral-700 px-4 py-2">{pedido.cliente}</td>
-                    <td class="border border-neutral-700 px-4 py-2">{pedido.estado}</td>
-                    <td class="border border-neutral-700 px-4 py-2 flex gap-2">
-                      <button class="flex items-center gap-1 rounded-lg bg-indigo-500 px-3 py-1 text-sm text-white hover:bg-indigo-600">
-                        <CheckCircle class="h-4 w-4" />
-                        Preparar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Entregar Pedidos -->
-        <div id="entregar" class="tab-content hidden">
-          <h2 class="text-lg font-semibold text-orange-500">Entregar Pedidos</h2>
-          <table class="w-full border-collapse text-left text-sm text-neutral-400">
-            <thead class="bg-neutral-700 text-neutral-300">
-              <tr>
-                <th class="border border-neutral-700 px-4 py-2">N° Pedido</th>
-                <th class="border border-neutral-700 px-4 py-2">Cliente</th>
-                <th class="border border-neutral-700 px-4 py-2">Estado</th>
-                <th class="border border-neutral-700 px-4 py-2">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pedidosData
-                .filter((pedido) => pedido.estado === "Listo para entrega")
-                .map((pedido) => (
-                  <tr class="hover:bg-neutral-700">
-                    <td class="border border-neutral-700 px-4 py-2">{pedido.id}</td>
-                    <td class="border border-neutral-700 px-4 py-2">{pedido.cliente}</td>
-                    <td class="border border-neutral-700 px-4 py-2">{pedido.estado}</td>
-                    <td class="border border-neutral-700 px-4 py-2 flex gap-2">
-                      <button class="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-1 text-sm text-white hover:bg-green-600">
-                        <Truck class="h-4 w-4" />
-                        Entregar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </main>
-    </div>
+    <main class="flex-1 p-6">
+      <h2 class="text-lg font-semibold text-orange-500 mb-4 flex items-center gap-2">
+        <Package class="h-5 w-5 text-orange-500" /> Preparar Pedidos
+      </h2>
+      <table class="w-full border-collapse text-left text-sm text-neutral-400">
+        <thead class="bg-neutral-700 text-neutral-300">
+          <tr>
+            <th class="border border-neutral-700 px-4 py-2">N° Pedido</th>
+            <th class="border border-neutral-700 px-4 py-2">Cliente</th>
+            <th class="border border-neutral-700 px-4 py-2">Estado</th>
+            <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="preparar-tbody"></tbody>
+      </table>
+    </main>
   </div>
+
+  <script type="module">
+    // --- Fetch y render de Preparar ---
+    async function fetchPreparar() {
+      const res = await fetch("http://localhost:6500/pedidos/preparar");
+      const { pedidos } = await res.json();
+      const tbody = document.getElementById("preparar-tbody");
+      tbody.innerHTML = "";
+      pedidos.forEach(p => {
+        tbody.innerHTML += `
+          <tr>
+            <td class="border border-neutral-700 px-4 py-2">${p.id_pedido}</td>
+            <td class="border border-neutral-700 px-4 py-2">${p.id_usuario}</td>
+            <td class="border border-neutral-700 px-4 py-2">${p.estado}</td>
+            <td class="border border-neutral-700 px-4 py-2">
+              <button class="btn-listo bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded" data-id="${p.id_pedido}">
+                Marcar como listo
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      document.querySelectorAll(".btn-listo").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          await fetch(`http://localhost:6500/pedido/${id}/listo`, { method: "POST" });
+          fetchPreparar();
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchPreparar);
+  </script>
 </MainLayout>
-
-<script>
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  const tabContents = document.querySelectorAll(".tab-content");
-
-  tabButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const target = document.querySelector((btn as HTMLElement).dataset.tab ?? "");
-
-      tabContents.forEach((content) => content.classList.add("hidden"));
-      tabButtons.forEach((button) => button.classList.remove("bg-neutral-700"));
-
-      if (target) {
-        target.classList.remove("hidden");
-      }
-      btn.classList.add("bg-neutral-700");
-    });
-  });
-</script>

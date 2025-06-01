@@ -1,14 +1,16 @@
-// src/lib/paypal-service.js
-const paypal = require('@paypal/checkout-server-sdk');
+import paypal from '@paypal/checkout-server-sdk';
 
-// Configura el entorno de PayPal (sandbox o live)
 const environment = new paypal.core.SandboxEnvironment(
   process.env.PAYPAL_CLIENT_ID,
   process.env.PAYPAL_CLIENT_SECRET
 );
 const client = new paypal.core.PayPalHttpClient(environment);
 
-async function createOrder(items) {
+function calculateTotal(items) {
+  return items.reduce((total, item) => total + item.price * item.quantity, 0);
+}
+
+export async function createOrder(items) {
   const request = new paypal.orders.OrdersCreateRequest();
   request.prefer('return=representation');
   request.requestBody({
@@ -16,7 +18,7 @@ async function createOrder(items) {
     purchase_units: [
       {
         amount: {
-          currency_code: 'USD', // Cambia a tu moneda
+          currency_code: 'USD',
           value: calculateTotal(items).toFixed(2),
           breakdown: {
             item_total: {
@@ -46,7 +48,7 @@ async function createOrder(items) {
   }
 }
 
-async function captureOrder(orderID) {
+export async function captureOrder(orderID) {
   const request = new paypal.orders.OrdersCaptureRequest(orderID);
   request.requestBody = {};
 
@@ -58,9 +60,3 @@ async function captureOrder(orderID) {
     throw err;
   }
 }
-
-function calculateTotal(items) {
-  return items.reduce((total, item) => total + item.price * item.quantity, 0);
-}
-
-module.exports = { createOrder, captureOrder };

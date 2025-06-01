@@ -1,17 +1,7 @@
 ---
 // filepath: d:\ScrewFast\src\pages\users\dashContador.astro
-import { DollarSign, CheckCircle, Truck, Search } from "@lucide/astro";
+import { DollarSign, Truck, Search } from "@lucide/astro";
 import MainLayout from "@/layouts/MainLayout.astro";
-
-const pagosData = [
-  { id: "PG-2023-001", cliente: "Juan Pérez", fecha: "15/04/2023", monto: 329.98, estado: "Pendiente" },
-  { id: "PG-2023-002", cliente: "María López", fecha: "16/04/2023", monto: 199.99, estado: "Confirmado" },
-];
-
-const entregasData = [
-  { id: "ENT-2023-001", cliente: "Carlos Rodríguez", fecha: "16/04/2023", estado: "Pendiente" },
-  { id: "ENT-2023-002", cliente: "Ana Fernández", fecha: "17/04/2023", estado: "Entregado" },
-];
 ---
 
 <MainLayout>
@@ -22,27 +12,21 @@ const entregasData = [
     </header>
 
     <!-- Navigation Bar -->
-    <nav class="flex items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6 py-3">
-      <button
-        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
-        data-tab="#pagos"
-      >
+    <nav class="flex border-b border-neutral-700 bg-neutral-800">
+      <button class="px-6 py-3 focus:outline-none focus:bg-neutral-700 active bg-neutral-700" data-tab="pagos">
         <DollarSign class="h-5 w-5 text-orange-500" />
         Confirmar Pagos
       </button>
-      <button
-        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
-        data-tab="#entregas"
-      >
+      <button class="px-6 py-3 focus:outline-none focus:bg-neutral-700" data-tab="entregas">
         <Truck class="h-5 w-5 text-orange-500" />
         Registrar Entregas
       </button>
-      <div class="ml-auto flex items-center gap-2">
+      <div class="ml-auto flex items-center gap-2 px-6">
         <input
           type="text"
           id="search"
           placeholder="Buscar..."
-          class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:ring-2 focus:ring-orange-500 focus:outline-none"
         />
         <button
           id="filter"
@@ -56,96 +40,130 @@ const entregasData = [
 
     <!-- Main Content -->
     <div class="flex flex-1">
-      <main class="flex-1 p-6">
-        <!-- Confirmar Pagos -->
-        <div id="pagos" class="tab-content">
-          <h2 class="text-lg font-semibold text-orange-500">Confirmar Pagos</h2>
-          <table class="w-full border-collapse text-left text-sm text-neutral-400">
-            <thead class="bg-neutral-700 text-neutral-300">
-              <tr>
-                <th class="border border-neutral-700 px-4 py-2">ID Pago</th>
-                <th class="border border-neutral-700 px-4 py-2">Cliente</th>
-                <th class="border border-neutral-700 px-4 py-2">Fecha</th>
-                <th class="border border-neutral-700 px-4 py-2">Monto</th>
-                <th class="border border-neutral-700 px-4 py-2">Estado</th>
-                <th class="border border-neutral-700 px-4 py-2">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pagosData.map((pago) => (
-                <tr class="hover:bg-neutral-700">
-                  <td class="border border-neutral-700 px-4 py-2">{pago.id}</td>
-                  <td class="border border-neutral-700 px-4 py-2">{pago.cliente}</td>
-                  <td class="border border-neutral-700 px-4 py-2">{pago.fecha}</td>
-                  <td class="border border-neutral-700 px-4 py-2">${pago.monto.toFixed(2)}</td>
-                  <td class="border border-neutral-700 px-4 py-2">{pago.estado}</td>
-                  <td class="border border-neutral-700 px-4 py-2 flex gap-2">
-                    {pago.estado === "Pendiente" && (
-                      <button class="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-1 text-sm text-white hover:bg-green-600">
-                        <CheckCircle class="h-4 w-4" />
-                        Confirmar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <!-- Pagos -->
+      <section id="pagos" class="flex-1 p-6">
+        <h2 class="text-lg font-semibold text-orange-500 mb-4">Confirmar Pagos</h2>
+        <table class="w-full border-collapse text-left text-sm text-neutral-400">
+          <thead class="bg-neutral-700 text-neutral-300">
+            <tr>
+              <th class="border border-neutral-700 px-4 py-2">ID Pago</th>
+              <th class="border border-neutral-700 px-4 py-2">ID Pedido</th>
+              <th class="border border-neutral-700 px-4 py-2">Método</th>
+              <th class="border border-neutral-700 px-4 py-2">Fecha</th>
+              <th class="border border-neutral-700 px-4 py-2">Monto</th>
+              <th class="border border-neutral-700 px-4 py-2">Estado</th>
+              <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="pagos-tbody">
+            <!-- Se llena con JS -->
+          </tbody>
+        </table>
+      </section>
 
-        <!-- Registrar Entregas -->
-        <div id="entregas" class="tab-content hidden">
-          <h2 class="text-lg font-semibold text-orange-500">Registrar Entregas</h2>
-          <table class="w-full border-collapse text-left text-sm text-neutral-400">
-            <thead class="bg-neutral-700 text-neutral-300">
-              <tr>
-                <th class="border border-neutral-700 px-4 py-2">ID Entrega</th>
-                <th class="border border-neutral-700 px-4 py-2">Cliente</th>
-                <th class="border border-neutral-700 px-4 py-2">Fecha</th>
-                <th class="border border-neutral-700 px-4 py-2">Estado</th>
-                <th class="border border-neutral-700 px-4 py-2">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entregasData.map((entrega) => (
-                <tr class="hover:bg-neutral-700">
-                  <td class="border border-neutral-700 px-4 py-2">{entrega.id}</td>
-                  <td class="border border-neutral-700 px-4 py-2">{entrega.cliente}</td>
-                  <td class="border border-neutral-700 px-4 py-2">{entrega.fecha}</td>
-                  <td class="border border-neutral-700 px-4 py-2">{entrega.estado}</td>
-                  <td class="border border-neutral-700 px-4 py-2 flex gap-2">
-                    {entrega.estado === "Pendiente" && (
-                      <button class="flex items-center gap-1 rounded-lg bg-indigo-500 px-3 py-1 text-sm text-white hover:bg-indigo-600">
-                        <Truck class="h-4 w-4" />
-                        Registrar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </main>
+      <!-- Entregas (puedes implementar luego) -->
+      <section id="entregas" class="hidden flex-1 p-6">
+        <h2 class="text-lg font-semibold text-orange-500 mb-4">Registrar Entregas</h2>
+        <table class="w-full border-collapse text-left text-sm text-neutral-400">
+          <thead class="bg-neutral-700 text-neutral-300">
+            <tr>
+              <th class="border border-neutral-700 px-4 py-2">ID Entrega</th>
+              <th class="border border-neutral-700 px-4 py-2">Cliente</th>
+              <th class="border border-neutral-700 px-4 py-2">Fecha</th>
+              <th class="border border-neutral-700 px-4 py-2">Estado</th>
+              <th class="border border-neutral-700 px-4 py-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="entregas-tbody">
+            <!-- Se llena con JS si lo necesitas -->
+          </tbody>
+        </table>
+      </section>
     </div>
   </div>
-</MainLayout>
 
-<script>
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  const tabContents = document.querySelectorAll(".tab-content");
+  <script type="module">
+    // --- Tabs ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mostrar la sección de pagos por defecto
+      const tabs = document.querySelectorAll('[data-tab]');
+      const sections = {
+        pagos: document.getElementById('pagos'),
+        entregas: document.getElementById('entregas'),
+      };
+      sections.pagos.classList.remove('hidden');
+      tabs.forEach(tab => {
+        if (tab.dataset.tab === 'pagos') {
+          tab.classList.add('active', 'bg-neutral-700');
+        } else {
+          tab.classList.remove('active', 'bg-neutral-700');
+        }
+      });
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab;
+          if (!target) return;
+          Object.values(sections).forEach(section => section.classList.add('hidden'));
+          if (sections[target]) sections[target].classList.remove('hidden');
+          tabs.forEach(t => t.classList.remove('active', 'bg-neutral-700'));
+          tab.classList.add('active', 'bg-neutral-700');
+        });
+      });
 
-  tabButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const target = document.querySelector((btn as HTMLElement).dataset.tab ?? "");
-
-      tabContents.forEach((content) => content.classList.add("hidden"));
-      tabButtons.forEach((button) => button.classList.remove("bg-neutral-700"));
-
-      if (target) {
-        target.classList.remove("hidden");
-      }
-      btn.classList.add("bg-neutral-700");
+      fetchPagosPendientes();
     });
-  });
-</script>
+
+    // --- Pagos ---
+    async function fetchPagosPendientes() {
+      try {
+        const res = await fetch("http://localhost:6500/pago/pendientes");
+        let pagos = await res.json();
+        if (pagos && pagos.pagos) pagos = pagos.pagos;
+        if (!Array.isArray(pagos)) pagos = [];
+        renderPagosTable(pagos);
+      } catch (e) {
+        renderPagosTable([]);
+      }
+    }
+
+    function renderPagosTable(pagos) {
+      const tbody = document.getElementById("pagos-tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      pagos.forEach(pago => {
+        const monto = Number(pago.monto) || 0;
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-neutral-700";
+        tr.innerHTML = `
+          <td class="border border-neutral-700 px-4 py-2">${pago.id_pago ?? ""}</td>
+          <td class="border border-neutral-700 px-4 py-2">${pago.id_pedido ?? ""}</td>
+          <td class="border border-neutral-700 px-4 py-2">${pago.metodo_pago ?? ""}</td>
+          <td class="border border-neutral-700 px-4 py-2">${pago.fecha_pago ?? ""}</td>
+          <td class="border border-neutral-700 px-4 py-2">$${monto.toFixed(2)}</td>
+          <td class="border border-neutral-700 px-4 py-2">${pago.estado ?? ""}</td>
+          <td class="border border-neutral-700 px-4 py-2">
+            <button class="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-1 text-sm text-white hover:bg-green-600 confirmar-btn" data-id="${pago.id_pago ?? ""}">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+              Confirmar
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Listeners para confirmar
+      tbody.querySelectorAll('.confirmar-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const idPago = btn.getAttribute('data-id');
+          if (!idPago) return alert("ID de pago no válido");
+          const res = await fetch(`http://localhost:6500/pago/${idPago}/confirmar`, { method: "POST" });
+          if (res.ok) {
+            fetchPagosPendientes(); // Refresca la tabla
+          } else {
+            alert("Error al confirmar el pago");
+          }
+        });
+      });
+    }
+  </script>
+</MainLayout>
