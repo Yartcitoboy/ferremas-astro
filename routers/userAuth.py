@@ -24,7 +24,7 @@ async def login(email: str = Form(...), contrasena: str = Form(...)):
         cone = get_conexion()
         cursor = cone.cursor()
         cursor.execute(
-            """SELECT id_usuario, contrasena
+            """SELECT id_usuario, contrasena, debe_cambiar_contrasena
                FROM credencial
                WHERE email = :email""",
             {"email": email}
@@ -36,7 +36,7 @@ async def login(email: str = Form(...), contrasena: str = Form(...)):
             cone.close()
             raise HTTPException(status_code=400, detail="Credenciales incorrectas")
 
-        id_usuario_credencial, hashed_password_db = credencial
+        id_usuario_credencial, hashed_password_db, debe_cambiar_contrasena = credencial
 
         if not pwd_context.verify(contrasena, hashed_password_db):
             cursor.close()
@@ -63,8 +63,28 @@ async def login(email: str = Form(...), contrasena: str = Form(...)):
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token_data = {"sub": email, "role": rol_name}
         access_token = create_access_token(data=access_token_data, expires_delta=access_token_expires)
-        return {"access_token": access_token, "token_type": "bearer","nombre_apellidos":nombre_apellidos, "id_usuario": id_usuario_credencial, "id_rol": id_rol, "nombre_rol": rol_name}
+        return {"access_token": access_token, "token_type": "bearer","nombre_apellidos":nombre_apellidos, "id_usuario": id_usuario_credencial, "id_rol": id_rol, "nombre_rol": rol_name,"debe_cambiar_contrasena": bool(debe_cambiar_contrasena)}
 
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+    
+@router_auth.post("/cambiar_contrasena")
+async def cambiar_contrasena(
+    id_usuario: int = Form(...),
+    nueva_contrasena: str = Form(...)
+):
+    try:
+        cone = get_conexion()
+        cursor = cone.cursor()
+        hashed = pwd_context.hash(nueva_contrasena)
+        cursor.execute(
+            "UPDATE credencial SET contrasena = :contrasena, debe_cambiar_contrasena = 0 WHERE id_usuario = :id_usuario",
+            {"contrasena": hashed, "id_usuario": id_usuario}
+        )
+        cone.commit()
+        cursor.close()
+        cone.close()
+        return {"mensaje": "Contraseña actualizada"}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
 

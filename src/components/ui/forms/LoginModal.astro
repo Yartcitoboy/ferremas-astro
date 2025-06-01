@@ -1,12 +1,9 @@
 ---
-// Import necessary components from their individual files
 import EmailInput from "./input/EmailInput.astro";
 import PasswordInput from "./input/PasswordInput.astro";
 import Checkbox from "./input/Checkbox.astro";
 import AuthBtn from "@components/ui/buttons/AuthBtn.astro";
 import GoogleBtn from "@components/ui/buttons/GoogleBtn.astro";
-
-// Variables for customization of the LoginModal Component
 
 const config = {
   id: "hs-toggle-between-modals-login-modal",
@@ -19,10 +16,10 @@ const config = {
 
 <div
   id={config.id}
-  class="hs-overlay absolute start-0 top-0 z-50 hidden h-full w-full hs-overlay-backdrop-open:bg-neutral-900/90"
+  class="hs-overlay hs-overlay-backdrop-open:bg-neutral-900/90 absolute start-0 top-0 z-50 hidden h-full w-full"
 >
   <div
-    class="m-3 mt-0 opacity-0 transition-all ease-out hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 sm:mx-auto sm:w-full sm:max-w-lg"
+    class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 m-3 mt-0 opacity-0 transition-all ease-out sm:mx-auto sm:w-full sm:max-w-lg"
   >
     <div class="mx-auto w-full max-w-md p-6">
       <div
@@ -38,7 +35,7 @@ const config = {
             <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
               {config.subTitle}
               <button
-                class="rounded-lg p-1 font-medium text-orange-400 decoration-2 outline-hidden ring-zinc-500 hover:underline focus-visible:ring-3 dark:text-orange-400 dark:ring-zinc-200 dark:focus:outline-hidden"
+                class="rounded-lg p-1 font-medium text-orange-400 decoration-2 ring-zinc-500 outline-hidden hover:underline focus-visible:ring-3 dark:text-orange-400 dark:ring-zinc-200 dark:focus:outline-hidden"
                 data-hs-overlay={config.registerBtnDataHS}
               >
                 {config.registerBtn}
@@ -49,15 +46,17 @@ const config = {
             <GoogleBtn title="Inicia sesión con Google" />
 
             <div
-              class="flex items-center py-3 text-xs uppercase text-neutral-400 before:me-6 before:flex-[1_1_0%] before:border-t before:border-neutral-200 after:ms-6 after:flex-[1_1_0%] after:border-t after:border-neutral-200 dark:text-neutral-500 dark:before:border-neutral-600 dark:after:border-neutral-600"
+              class="flex items-center py-3 text-xs text-neutral-400 uppercase before:me-6 before:flex-[1_1_0%] before:border-t before:border-neutral-200 after:ms-6 after:flex-[1_1_0%] after:border-t after:border-neutral-200 dark:text-neutral-500 dark:before:border-neutral-600 dark:after:border-neutral-600"
             >
               O
             </div>
             <form id="loginForm" method="post">
               <div class="grid gap-y-4">
-                {/* ESTE FUE EL CAMBIO: name="email" */}
-                <EmailInput id="login-email" errorId="login-email-error" name="email" />
-                {/* ESTE FUE EL CAMBIO: name="contrasena" */}
+                <EmailInput
+                  id="login-email"
+                  errorId="login-email-error"
+                  name="email"
+                />
                 <PasswordInput
                   forgot={true}
                   id="password"
@@ -76,70 +75,163 @@ const config = {
   </div>
 </div>
 
+<!-- Modal de cambio de contraseña -->
+<div
+  id="modal-cambiar-contrasena"
+  class="bg-opacity-40 fixed inset-0 z-50 flex hidden items-center justify-center bg-black"
+>
+  <form
+    id="form-cambiar-contrasena"
+    class="w-full max-w-md rounded-lg bg-white p-8 shadow-lg"
+  >
+    <h3 class="mb-4 text-center text-lg font-bold">Cambia tu contraseña</h3>
+    <input
+      type="password"
+      id="nueva-contrasena"
+      class="mb-4 w-full rounded border px-3 py-2"
+      placeholder="Nueva contraseña"
+      required
+    />
+    <button
+      type="submit"
+      class="w-full rounded bg-orange-500 py-2 font-semibold text-white hover:bg-orange-600"
+      >Actualizar</button
+    >
+  </form>
+</div>
+
 <script>
-  const loginForm = document.getElementById('loginForm') as HTMLFormElement;
-  loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById(
+      "loginForm"
+    ) as HTMLFormElement | null;
+    let idUsuarioParaCambio: string | null = null;
 
-    const formData = new FormData(loginForm);
-    const email = formData.get('email');
-    const password = formData.get('contrasena');
+    // Función para decodificar el rol desde el token
+    function obtenerRolDesdeToken(token: string) {
+      try {
+        const tokenPayload = JSON.parse(atob(token.split(".")[1]));
+        return tokenPayload.role;
+      } catch {
+        return "";
+      }
+    }
 
-    console.log('Email:', email);
-    console.log('Password:', password);
+    // Función para redirigir según el rol
+    function redirigirPorRol(userRole: string) {
+      if (userRole === "Administrador") {
+        window.location.href = "/users/dashAdmin";
+      } else if (userRole === "Bodeguero") {
+        window.location.href = "/users/dashBodeguero";
+      } else if (userRole === "Vendedor") {
+        window.location.href = "/users/dashVendedor";
+      } else if (userRole === "Contador") {
+        window.location.href = "/users/dashContador";
+      } else {
+        window.location.href = "/";
+      }
+    }
 
-    const body = new URLSearchParams(formData as any).toString();
-    console.log('Cuerpo de la petición:', body);
+    // Mostrar modal de cambio de contraseña
+    function mostrarModalCambioContrasena(id_usuario: string) {
+      idUsuarioParaCambio = id_usuario;
+      const modalCambiar = document.getElementById("modal-cambiar-contrasena");
+      if (modalCambiar) {
+        modalCambiar.classList.remove("hidden");
+      }
+    }
 
-    try {
-      const response = await fetch('http://localhost:8000/usuarios_auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: body,
-      });
+    // Login
+    if (loginForm) {
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-      console.log('Estado de la respuesta:', response.status);
-      const data = await response.json();
-      console.log('Respuesta del servidor (raw):', JSON.stringify(data, null, 2));
+        const formData = new FormData(loginForm);
+        const formObj: Record<string, string> = {};
+        formData.forEach((value, key) => {
+          formObj[key] = String(value);
+        });
+        const body = new URLSearchParams(formObj).toString();
 
-      if (response.ok) {
-        localStorage.setItem('accessToken', data.access_token);
-        localStorage.setItem('userName', data.nombre_apellidos || 'Usuario'); // Ajusta el campo según tu API
-        localStorage.setItem('id_usuario', data.id_usuario);
-        console.log('Token guardado:', data.access_token);
         try {
-          const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]));
-          console.log('Payload del token:', tokenPayload);
-          const userRole = tokenPayload.role;
-          console.log('Rol del usuario:', userRole);
+          const response = await fetch(
+            "http://localhost:8000/usuarios_auth/login",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: body,
+            }
+          );
 
-          // ESTE FUE EL CAMBIO: Dispara un evento personalizado para que la Navbar se actualice
-          window.dispatchEvent(new CustomEvent('login-success'));
+          const data = await response.json();
 
-          if (userRole === 'Administrador') {
-            window.location.href = '/users/dashAdmin';
-          } else if (userRole === 'Bodeguero') {
-            window.location.href = '/users/dashBodeguero';
-          } else if (userRole === 'Vendedor') {
-            window.location.href = '/users/dashVendedor';
-          } else if (userRole === 'Contador') {
-            window.location.href = '/users/dashContador';
+          if (response.ok) {
+            localStorage.setItem("accessToken", data.access_token);
+            localStorage.setItem("userName", data.nombre_apellidos || "Usuario");
+            localStorage.setItem("id_usuario", data.id_usuario);
+
+            const userRole = obtenerRolDesdeToken(data.access_token);
+            if (!userRole) {
+              alert("Error al procesar el rol del usuario.");
+              return;
+            }
+
+            // Solo mostrar el modal si es admin y debe cambiar contraseña
+            if (data.debe_cambiar_contrasena && userRole === "Administrador") {
+              mostrarModalCambioContrasena(data.id_usuario);
+              return;
+            }
+
+            window.dispatchEvent(new CustomEvent("login-success"));
+            redirigirPorRol(userRole);
           } else {
-            window.location.href = '/'; // Página por defecto
+            alert(data.detail || "Error al iniciar sesión.");
           }
         } catch (error) {
-          console.error('Error al decodificar el token:', error);
-          alert('Error al procesar la respuesta del login.');
+          alert("Error de conexión.");
         }
-      } else {
-        console.error('Error al iniciar sesión:', data.detail);
-        alert('Error al iniciar sesión.');
-      }
-    } catch (error) {
-      console.error('Hubo un error al comunicarse con el servidor:', error);
-      alert('Error de conexión.');
+      });
+    }
+
+    // Cambio de contraseña
+    const formCambio = document.getElementById("form-cambiar-contrasena");
+    if (formCambio) {
+      formCambio.onsubmit = async (e) => {
+        e.preventDefault();
+        const nuevaInput = document.getElementById("nueva-contrasena");
+        const nueva = nuevaInput ? (nuevaInput as HTMLInputElement).value : "";
+        if (!nueva || !idUsuarioParaCambio) {
+          alert("Debes ingresar la nueva contraseña.");
+          return;
+        }
+        const res = await fetch(
+          "http://localhost:8000/usuarios_auth/cambiar_contrasena",
+          {
+            method: "POST",
+            body: new URLSearchParams({
+              id_usuario: String(idUsuarioParaCambio),
+              nueva_contrasena: nueva,
+            }),
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          }
+        );
+        if (res.ok) {
+          alert("Contraseña actualizada. Redirigiendo a tu panel...");
+          // Oculta el modal
+          const modalCambiar = document.getElementById("modal-cambiar-contrasena");
+          if (modalCambiar) {
+            modalCambiar.classList.add("hidden");
+          }
+          // Redirige según el rol guardado en el token
+          const token = localStorage.getItem("accessToken");
+          const userRole = token ? obtenerRolDesdeToken(token) : "";
+          redirigirPorRol(userRole);
+        } else {
+          alert("Error al actualizar la contraseña");
+        }
+      };
     }
   });
 </script>

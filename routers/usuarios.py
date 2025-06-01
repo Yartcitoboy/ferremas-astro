@@ -49,7 +49,7 @@ def obtener_usuarios():
         raise HTTPException(status_code=500, detail=str(ex))
 
 @router.get("/{rut_buscar}")
-def obtener_usuario(rut_buscar: int):
+def obtener_usuario(rut_buscar: str):
     try:
         cone = get_conexion()
         cursor = cone.cursor()
@@ -89,17 +89,26 @@ def obtener_usuario(rut_buscar: int):
 @router.post("/")
 def agregar_usuario(
     nombre_apellidos: str = Form(...),
-    rut: int = Form(...),
+    rut: str = Form(...),
     direccion: str = Form(...),
-    telefono: int = Form(...),
+    telefono: str = Form(...),
     email: str = Form(...),
     contrasena: str = Form(...),
     id_rol: int = Form(...)
 ):
+    print("rut:", rut, type(rut))
+    print("telefono:", telefono, type(telefono))
+    print("id_rol:", id_rol, type(id_rol))
     try:
         cone = get_conexion()
         cursor = cone.cursor()
         hashed_password = pwd_context.hash(contrasena)
+        
+        cursor.execute("SELECT 1 FROM usuario WHERE rut = :rut OR email = :email", {"rut": rut, "email": email})
+        if cursor.fetchone():
+            cursor.close()
+            cone.close()
+            raise HTTPException(status_code=400, detail="El rut o email ya están registrados.")
 
         # Insertar en la tabla 'usuario' y obtener el id_usuario generado
         cursor.execute("""
@@ -149,13 +158,12 @@ def agregar_usuario(
         return {"mensaje": "Usuario registrado con éxito"}
     except Exception as ex:
         cone.rollback()
-        if cone.is_connected():
-            cursor.close()
-            cone.close()
+        cursor.close()
+        cone.close()
         raise HTTPException(status_code=500, detail=str(ex))
 
 @router.put("/{rut_actualizar}")
-def actualizar_usuario(rut_actualizar:int, nombre_apellidos:str, direccion:str, telefono:int, email:str, contrasena:str, id_rol:int):
+def actualizar_usuario(rut_actualizar:str, nombre_apellidos:str, direccion:str, telefono:str, email:str, contrasena:str, id_rol:int):
     try:
         cone = get_conexion()
         cursor = cone.cursor()
@@ -176,7 +184,7 @@ def actualizar_usuario(rut_actualizar:int, nombre_apellidos:str, direccion:str, 
         raise HTTPException(status_code=500, detail=str(ex))
 
 @router.delete("/{rut_eliminar}")
-def eliminar_usuario(rut_eliminar: int):
+def eliminar_usuario(rut_eliminar: str):
     try:
         cone = get_conexion()
         cursor = cone.cursor()
@@ -196,32 +204,59 @@ def eliminar_usuario(rut_eliminar: int):
 
 from typing import Optional
 
-@router.patch("/{rut_actualizar}")
-def actualizar_parcial(rut_actualizar:int, nombre:Optional[str]=None, email:Optional[str]=None):
-    try:
-        if not nombre and not email:
-            raise HTTPException(status_code=400, detail="Debe enviar al menos 1 dato")
-        cone = get_conexion()
-        cursor = cone.cursor()
+from typing import Optional
+from fastapi import Form
 
+@router.patch("/{rut_actualizar}")
+def actualizar_parcial(
+    rut_actualizar: str,
+    nombre_apellidos: Optional[str] = Form(None),
+    direccion: Optional[str] = Form(None),
+    telefono: Optional[str] = Form(None),
+    email: Optional[str] = Form(None),
+    contrasena: Optional[str] = Form(None),
+    id_rol: Optional[int] = Form(None)
+):
+    try:
         campos = []
         valores = {"rut": rut_actualizar}
-        if nombre:
-            campos.append("nombre = :nombre")
-            valores["nombre"] = nombre
+        if nombre_apellidos:
+            campos.append("nombre_apellidos = :nombre_apellidos")
+            valores["nombre_apellidos"] = nombre_apellidos
+        if direccion:
+            campos.append("direccion = :direccion")
+            valores["direccion"] = direccion
+        if telefono:
+            campos.append("telefono = :telefono")
+            valores["telefono"] = telefono
         if email:
             campos.append("email = :email")
             valores["email"] = email
+        if contrasena:
+            # Si quieres hashear la contraseña, descomenta la siguiente línea:
+            # valores["contrasena"] = pwd_context.hash(contrasena)
+            valores["contrasena"] = contrasena
+            campos.append("contrasena = :contrasena")
+        if id_rol is not None:
+            campos.append("id_rol = :id_rol")
+            valores["id_rol"] = id_rol
 
-        cursor.execute(f"UPDATE usuario SET {', '.join(campos)} WHERE rut = :rut"
-                       ,valores)
-        if cursor.rowcount==0:
+        if not campos:
+            raise HTTPException(status_code=400, detail="Debe enviar al menos un dato para actualizar")
+
+        cone = get_conexion()
+        cursor = cone.cursor()
+        cursor.execute(
+            f"UPDATE usuario SET {', '.join(campos)} WHERE rut = :rut",
+            valores
+        )
+        if cursor.rowcount == 0:
             cursor.close()
             cone.close()
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
         cone.commit()
         cursor.close()
-        cone.close()        
+        cone.close()
         return {"mensaje": "Usuario actualizado con éxito"}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))

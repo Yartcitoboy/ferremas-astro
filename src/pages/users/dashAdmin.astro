@@ -1,243 +1,434 @@
 ---
-// filepath: d:\ScrewFast\src\pages\users\dashAdmin.astro
-import { FileText, Search, Users, Download, Edit, Trash, PlusCircle, BarChart } from "@lucide/astro";
 import MainLayout from "@/layouts/MainLayout.astro";
-
-const ventasMensuales = [
-  { mes: "Enero", total: 12000 },
-  { mes: "Febrero", total: 15000 },
-  { mes: "Marzo", total: 18000 },
-];
-
-const usuariosData = [
-  { id: 1, nombre: "Juan Pérez", rol: "Vendedor", email: "juan@example.com" },
-  { id: 2, nombre: "María López", rol: "Cliente", email: "maria@example.com" },
-  { id: 3, nombre: "Carlos Rodríguez", rol: "Contador", email: "carlos@example.com" },
-  { id: 4, nombre: "Ana Fernández", rol: "Bodeguero", email: "ana@example.com" },
-];
+import { Icon } from "@astrojs/starlight/components";
 ---
 
 <MainLayout>
+  <!-- Notificación flotante -->
+  <div
+    id="modal-confirm"
+    class="bg-opacity-40 fixed inset-0 z-50 flex hidden items-center justify-center bg-black"
+  >
+    <div class="max-w-xs rounded-lg bg-white p-6 text-center shadow-lg">
+      <p
+        id="modal-confirm-message"
+        class="mb-4 text-lg font-semibold text-gray-800"
+      >
+      </p>
+      <button
+        id="modal-confirm-close"
+        class="rounded bg-orange-500 px-4 py-2 font-semibold text-white hover:bg-orange-600"
+        >Cerrar</button
+      >
+    </div>
+  </div>
   <div class="flex min-h-screen flex-col bg-neutral-900 text-white">
-    <!-- Header -->
-    <header class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6">
-      <h1 class="text-xl font-semibold text-orange-500">Panel de Administrador</h1>
+    <header
+      class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6"
+    >
+      <h1 class="text-xl font-semibold text-orange-500">
+        Panel de Administrador
+      </h1>
     </header>
 
-    <!-- Navigation Bar -->
-    <nav class="flex items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6 py-3">
+    <nav
+      class="flex items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6 py-3"
+    >
       <button
-        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
-        data-tab="#ventas"
+        class="tab-btn active rounded-lg bg-neutral-700 px-4 py-2 font-semibold"
+        data-tab="usuarios">Usuarios</button
       >
-        <FileText class="h-5 w-5 text-orange-500" />
-        Informes de Ventas
-      </button>
-      <button
-        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
-        data-tab="#desempeno"
-      >
-        <BarChart class="h-5 w-5 text-orange-500" />
-        Desempeño en Tienda
-      </button>
-      <button
-        class="tab-btn flex items-center gap-2 rounded-lg px-3 py-2 text-white hover:bg-neutral-700"
-        data-tab="#usuarios"
-      >
-        <Users class="h-5 w-5 text-orange-500" />
-        Gestión de Usuarios
-      </button>
     </nav>
 
-    <!-- Main Content -->
-    <div class="flex flex-1">
-      <main class="flex-1 p-6">
-        <!-- Informes de Ventas -->
-        <div id="ventas" class="tab-content">
-          <h2 class="text-lg font-semibold text-orange-500">Informes de Ventas Mensuales</h2>
-          <table class="w-full border-collapse text-left text-sm text-neutral-400">
-            <thead class="bg-neutral-700 text-neutral-300">
-              <tr>
-                <th class="border border-neutral-700 px-4 py-2">Mes</th>
-                <th class="border border-neutral-700 px-4 py-2">Total Ventas</th>
-                <th class="border border-neutral-700 px-4 py-2">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ventasMensuales.map((venta) => (
-                <tr class="hover:bg-neutral-700">
-                  <td class="border border-neutral-700 px-4 py-2">{venta.mes}</td>
-                  <td class="border border-neutral-700 px-4 py-2">${venta.total.toFixed(2)}</td>
-                  <td class="border border-neutral-700 px-4 py-2">
-                    <button class="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-1 text-sm text-white hover:bg-green-600">
-                      <Download class="h-4 w-4" />
-                      Descargar Excel
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Desempeño en Tienda -->
-        <div id="desempeno" class="tab-content hidden">
-          <h2 class="text-lg font-semibold text-orange-500">Informe de Desempeño en Tienda</h2>
-          <p class="text-neutral-400">Aquí puedes generar informes de desempeño de los trabajadores.</p>
-          <button class="mt-4 flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600">
-            <BarChart class="h-5 w-5" />
-            Generar Informe
+    <main class="flex-1 p-6">
+      <!-- Gestión de Usuarios -->
+      <section id="usuarios" class="">
+        <div class="mb-6 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-orange-500">
+            Gestión de Usuarios
+          </h2>
+          <button
+            id="btn-add-user"
+            class="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
+          >
+            + Agregar Usuario
           </button>
         </div>
+        <div class="mb-4 flex gap-4">
+          <input
+            type="text"
+            id="searchName"
+            placeholder="Buscar por nombre..."
+            class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:ring-2 focus:ring-orange-500 focus:outline-none"
+          />
+          <select
+            id="filterRole"
+            class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:ring-2 focus:ring-orange-500 focus:outline-none"
+          >
+            <option value="">Todos los roles</option>
+            <option value="2">Vendedor</option>
+            <option value="5">Cliente</option>
+            <option value="3">Contador</option>
+            <option value="4">Bodeguero</option>
+            <option value="1">Administrador</option>
+          </select>
+          <button
+            id="btn-refresh"
+            class="rounded-lg bg-green-500 px-4 py-2 text-sm text-white hover:bg-green-600"
+            type="button"
+          >
+            <Icon name="seti:video" />
+          </button>
+        </div>
+        <div
+          class="overflow-x-auto rounded-lg border border-neutral-700 bg-neutral-800 shadow"
+        >
+          <table
+            class="min-w-full border-collapse text-left text-sm text-neutral-300"
+          >
+            <thead class="bg-neutral-700 text-neutral-200">
+              <tr>
+                <th class="border-b border-neutral-700 px-4 py-2">Nombre</th>
+                <th class="border-b border-neutral-700 px-4 py-2">RUT</th>
+                <th class="border-b border-neutral-700 px-4 py-2">Dirección</th>
+                <th class="border-b border-neutral-700 px-4 py-2">Teléfono</th>
+                <th class="border-b border-neutral-700 px-4 py-2">Email</th>
+                <th class="border-b border-neutral-700 px-4 py-2">Rol</th>
+                <th class="border-b border-neutral-700 px-4 py-2">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="userTable"></tbody>
+          </table>
+        </div>
+      </section>
 
-        
-        <!-- Gestión de Usuarios -->
-<div id="usuarios" class="tab-content hidden">
-    <h2 class="text-lg font-semibold text-orange-500">Gestión de Usuarios</h2>
-  
-    <!-- Filtro de Usuarios -->
-    <div class="mb-6 flex items-center gap-4">
-      <input
-        type="text"
-        id="searchName"
-        placeholder="Buscar por nombre..."
-        class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-      />
-      <select
-        id="filterRole"
-        class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+      <!-- Modal Usuario -->
+      <div
+        id="modal-user"
+        class="bg-opacity-40 fixed inset-0 z-50 flex hidden items-center justify-center bg-black"
       >
-        <option value="">Todos los roles</option>
-        <option value="Vendedor">Vendedor</option>
-        <option value="Cliente">Cliente</option>
-        <option value="Contador">Contador</option>
-        <option value="Bodeguero">Bodeguero</option>
-        <option value="Administrador">Administrador</option>
-      </select>
-      <button
-        id="applyFilter"
-        class="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
-      >
-        <Search class="h-5 w-5" />
-        Aplicar Filtro
-      </button>
-
-    <div class="flex-1 flex justify-end">
-      <button class="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600">
-        <PlusCircle class="h-5 w-5" />
-        Agregar Usuario
-      </button>
-    </div>
-    </div>
-  
-    <!-- Tabla de Gestión de Usuarios -->
-    <table class="w-full border-collapse text-left text-sm text-neutral-400">
-      <thead class="bg-neutral-700 text-neutral-300">
-        <tr>
-          <th class="border border-neutral-700 px-4 py-2">ID</th>
-          <th class="border border-neutral-700 px-4 py-2">Nombre</th>
-          <th class="border border-neutral-700 px-4 py-2">Rol</th>
-          <th class="border border-neutral-700 px-4 py-2">Email</th>
-          <th class="border border-neutral-700 px-4 py-2">Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="userTable">
-        {usuariosData.map((usuario) => (
-          <tr class="hover:bg-neutral-700">
-            <td class="border border-neutral-700 px-4 py-2">{usuario.id}</td>
-            <td class="border border-neutral-700 px-4 py-2">{usuario.nombre}</td>
-            <td class="border border-neutral-700 px-4 py-2">{usuario.rol}</td>
-            <td class="border border-neutral-700 px-4 py-2">{usuario.email}</td>
-            <td class="border border-neutral-700 px-4 py-2 flex gap-2">
-              <button class="flex items-center gap-1 rounded-lg bg-indigo-500 px-3 py-1 text-sm text-white hover:bg-blue-600">
-                <Edit class="h-4 w-4" />
-                
-              </button>
-              <button class="flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600">
-                <Trash class="h-4 w-4" />
-                
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    
+        <div
+          class="relative w-full max-w-md rounded-lg bg-white p-8 text-black shadow-lg"
+        >
+          <button
+            id="close-modal"
+            class="absolute top-2 right-2 text-xl text-gray-500 hover:text-red-500"
+            >&times;</button
+          >
+          <h3 id="modal-title" class="mb-4 text-lg font-bold">
+            Agregar Usuario
+          </h3>
+          <form id="userForm" class="space-y-4">
+            <input type="hidden" id="form-rut-original" />
+            <div>
+              <label class="block text-sm font-medium">Nombre y Apellidos</label
+              >
+              <input
+                type="text"
+                id="form-nombre"
+                class="w-full rounded border border-gray-300 px-3 py-2"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium">RUT</label>
+              <input
+                type="text"
+                id="form-rut"
+                class="w-full rounded border border-gray-300 px-3 py-2"
+                required
+              />
+              <span id="error-rut" class="text-xs text-red-500"></span>
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Dirección</label>
+              <input
+                type="text"
+                id="form-direccion"
+                class="w-full rounded border border-gray-300 px-3 py-2"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Teléfono</label>
+              <input
+                type="text"
+                id="form-telefono"
+                class="w-full rounded border border-gray-300 px-3 py-2"
+                required
+              />
+              <span id="error-telefono" class="text-xs text-red-500"></span>
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Email</label>
+              <input
+                type="email"
+                id="form-email"
+                class="w-full rounded border border-gray-300 px-3 py-2"
+                required
+              />
+              <span id="error-email" class="text-xs text-red-500"></span>
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Contraseña</label>
+              <input
+                type="password"
+                id="form-contrasena"
+                class="w-full rounded border border-gray-300 px-3 py-2"
+                required
+              />
+              <span id="error-contrasena" class="text-xs text-red-500"></span>
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Rol</label>
+              <select
+                id="form-rol"
+                class="w-full rounded border border-gray-300 px-3 py-2"
+                required
+              >
+                <option value="">Selecciona un rol</option>
+                <option value="2">Vendedor</option>
+                <option value="5">Cliente</option>
+                <option value="3">Contador</option>
+                <option value="4">Bodeguero</option>
+                <option value="1">Administrador</option>
+              </select>
+              <span id="error-rol" class="text-xs text-red-500"></span>
+            </div>
+            <span id="error-general" class="text-xs text-red-500"></span>
+            <button
+              type="submit"
+              class="w-full rounded bg-orange-500 py-2 font-semibold text-white hover:bg-orange-600"
+              >Guardar</button
+            >
+          </form>
+        </div>
+      </div>
+    </main>
   </div>
-      </main>
-    </div>
-  </div>
-</MainLayout>
 
-<script>
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  const tabContents = document.querySelectorAll(".tab-content");
+  <script type="module">
+    function showConfirmModal(message) {
+      const modal = document.getElementById("modal-confirm");
+      const msg = document.getElementById("modal-confirm-message");
+      msg.textContent = message;
+      modal.classList.remove("hidden");
+      document.getElementById("modal-confirm-close").onclick = () => {
+        modal.classList.add("hidden");
+      };
+    }
+    // --- Variables ---
+    let usuarios = [];
+    let editMode = false;
 
-  tabButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const target = document.querySelector((btn as HTMLElement).dataset.tab ?? "");
+    // --- Elementos ---
+    const userTable = document.getElementById("userTable");
+    const searchNameInput = document.getElementById("searchName");
+    const filterRoleSelect = document.getElementById("filterRole");
+    const btnAddUser = document.getElementById("btn-add-user");
+    const modalUser = document.getElementById("modal-user");
+    const closeModal = document.getElementById("close-modal");
+    const userForm = document.getElementById("userForm");
+    const modalTitle = document.getElementById("modal-title");
 
-      tabContents.forEach((content) => content.classList.add("hidden"));
-      tabButtons.forEach((button) => button.classList.remove("bg-neutral-700"));
+    // Form fields
+    const formRutOriginal = document.getElementById("form-rut-original");
+    const formNombre = document.getElementById("form-nombre");
+    const formRut = document.getElementById("form-rut");
+    const formDireccion = document.getElementById("form-direccion");
+    const formTelefono = document.getElementById("form-telefono");
+    const formEmail = document.getElementById("form-email");
+    const formContrasena = document.getElementById("form-contrasena");
+    const formRol = document.getElementById("form-rol");
 
-      if (target) {
-        target.classList.remove("hidden");
-      }
-      btn.classList.add("bg-neutral-700");
-    });
-  });
+    const btnRefresh = document.getElementById("btn-refresh");
+    btnRefresh.onclick = fetchUsuarios;
 
-  const usuariosData = [
-    { id: 1, nombre: "Juan Pérez", rol: "Vendedor", email: "juan@example.com" },
-    { id: 2, nombre: "María López", rol: "Cliente", email: "maria@example.com" },
-    { id: 3, nombre: "Carlos Rodríguez", rol: "Contador", email: "carlos@example.com" },
-    { id: 4, nombre: "Ana Fernández", rol: "Bodeguero", email: "ana@example.com" },
-  ];
+    // --- Funciones CRUD ---
+    async function fetchUsuarios() {
+      const res = await fetch("http://localhost:8000/usuarios/");
+      usuarios = await res.json();
+      renderUsuarios();
+    }
 
-  const searchNameInput = document.getElementById("searchName");
-  const filterRoleSelect = document.getElementById("filterRole");
-  const applyFilterButton = document.getElementById("applyFilter");
-  const userTable = document.getElementById("userTable");
-
-  if (
-    applyFilterButton &&
-    searchNameInput &&
-    filterRoleSelect &&
-    userTable
-  ) {
-    applyFilterButton.addEventListener("click", () => {
-      const searchName = (searchNameInput as HTMLInputElement).value.toLowerCase();
-      const filterRole = (filterRoleSelect as HTMLSelectElement).value;
-
-      const filteredUsers = usuariosData.filter((usuario) => {
-        const matchesName = usuario.nombre.toLowerCase().includes(searchName);
-        const matchesRole = filterRole === "" || usuario.rol === filterRole;
-        return matchesName && matchesRole;
-      });
-
-      userTable.innerHTML = filteredUsers
+    const rolToId = {
+      Administrador: "1",
+      Vendedor: "2",
+      Contador: "3",
+      Bodeguero: "4",
+      Cliente: "5",
+    };
+    function renderUsuarios() {
+      const search = searchNameInput.value.toLowerCase();
+      const role = filterRoleSelect.value;
+      userTable.innerHTML = usuarios
+        .filter(
+          (u) =>
+            u.nombre_apellidos.toLowerCase().includes(search) &&
+            (role === "" || rolToId[u.rol] === role) // Compara el id esperado con el valor del select
+        )
         .map(
-          (usuario) => `
-          <tr class="hover:bg-neutral-700">
-            <td class="border border-neutral-700 px-4 py-2">${usuario.id}</td>
-            <td class="border border-neutral-700 px-4 py-2">${usuario.nombre}</td>
-            <td class="border border-neutral-700 px-4 py-2">${usuario.rol}</td>
-            <td class="border border-neutral-700 px-4 py-2">${usuario.email}</td>
-            <td class="border border-neutral-700 px-4 py-2 flex gap-2">
-              <button class="flex items-center gap-1 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600">
-                <Edit class="h-4 w-4" />
-                Editar
-              </button>
-              <button class="flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600">
-                <Trash class="h-4 w-4" />
-                Eliminar
-              </button>
-            </td>
-          </tr>
-        `
+          (u) => `
+    <tr class="hover:bg-neutral-700">
+      <td class="border-b border-neutral-700 px-4 py-2">${u.nombre_apellidos}</td>
+      <td class="border-b border-neutral-700 px-4 py-2">${u.rut}</td>
+      <td class="border-b border-neutral-700 px-4 py-2">${u.direccion}</td>
+      <td class="border-b border-neutral-700 px-4 py-2">${u.telefono}</td>
+      <td class="border-b border-neutral-700 px-4 py-2">${u.email}</td>
+      <td class="border-b border-neutral-700 px-4 py-2">${u.rol}</td>
+      <td class="border-b border-neutral-700 px-4 py-2 flex gap-2">
+        <button class="btn-edit-user flex items-center gap-1 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600" data-rut="${u.rut}">Editar</button>
+        <button class="btn-delete-user flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600" data-rut="${u.rut}">Eliminar</button>
+      </td>
+    </tr>
+  `
         )
         .join("");
-    });
-  }
+      addEditDeleteListeners();
+    }
 
-</script>
+    function addEditDeleteListeners() {
+      document.querySelectorAll(".btn-edit-user").forEach((btn) => {
+        btn.onclick = () => {
+          const rut = btn.dataset.rut;
+          const usuario = usuarios.find((u) => u.rut == rut);
+          if (!usuario) return;
+          editMode = true;
+          formRut.readOnly = true;
+          modalTitle.textContent = "Editar Usuario";
+          formRutOriginal.value = usuario.rut;
+          formNombre.value = usuario.nombre_apellidos;
+          formRut.value = usuario.rut;
+          formDireccion.value = usuario.direccion;
+          formTelefono.value = usuario.telefono;
+          formEmail.value = usuario.email;
+          formRol.value =
+            usuario.id_rol?.toString() || usuario.rol?.toString() || "";
+          modalUser.classList.remove("hidden");
+        };
+      });
+      document.querySelectorAll(".btn-delete-user").forEach((btn) => {
+        btn.onclick = async () => {
+          if (!confirm("¿Seguro que deseas eliminar este usuario?")) return;
+          const rut = btn.dataset.rut;
+          await fetch(`http://localhost:8000/usuarios/${rut}`, {
+            method: "DELETE",
+          });
+          showConfirmModal("Usuario eliminado correctamente");
+          fetchUsuarios();
+        };
+      });
+    }
+
+    // --- Modal ---
+    btnAddUser.onclick = () => {
+      editMode = false;
+      formRut.readOnly = false;
+      modalTitle.textContent = "Agregar Usuario";
+      userForm.reset();
+      limpiarErrores();
+      modalUser.classList.remove("hidden");
+    };
+    closeModal.onclick = () => modalUser.classList.add("hidden");
+
+    // --- Filtros ---
+    searchNameInput.oninput = renderUsuarios;
+    filterRoleSelect.onchange = renderUsuarios;
+
+    // --- Validación y envío ---
+    function limpiarErrores() {
+      document.getElementById("error-rut").textContent = "";
+      document.getElementById("error-telefono").textContent = "";
+      document.getElementById("error-email").textContent = "";
+      document.getElementById("error-rol").textContent = "";
+      document.getElementById("error-general").textContent = "";
+    }
+
+    userForm.onsubmit = async (e) => {
+      e.preventDefault();
+      limpiarErrores();
+      let valido = true;
+
+      if (!formRut.value) {
+        document.getElementById("error-rut").textContent =
+          "El RUT debe ser un número.";
+        valido = false;
+      }
+      if (!formTelefono.value) {
+        document.getElementById("error-telefono").textContent =
+          "El teléfono debe ser un número.";
+        valido = false;
+      }
+      if (!formEmail.value) {
+        document.getElementById("error-email").textContent =
+          "El email es obligatorio.";
+        valido = false;
+      }
+      if (!formRol.value) {
+        document.getElementById("error-rol").textContent =
+          "Selecciona un rol válido.";
+        valido = false;
+      }
+
+      // Mapear el nombre del rol a su id_rol (ajusta según tu base de datos)
+      const rolesMap = {
+        Administrador: 1,
+        Vendedor: 2,
+        Contador: 3,
+        Bodeguero: 4,
+        Cliente: 5,
+      };
+      const id_rol = Number(formRol.value);
+      if (!id_rol) {
+        document.getElementById("error-rol").textContent =
+          "Selecciona un rol válido.";
+        valido = false;
+      }
+
+      if (!valido) return;
+
+      const data = new FormData();
+      data.append("nombre_apellidos", formNombre.value);
+      data.append("rut", formRut.value);
+      data.append("direccion", formDireccion.value);
+      data.append("telefono", formTelefono.value);
+      data.append("email", formEmail.value);
+      data.append("contrasena", formContrasena.value);
+      data.append("id_rol", id_rol);
+
+      let response;
+      if (editMode) {
+        response = await fetch(
+          `http://localhost:8000/usuarios/${formRutOriginal.value}`,
+          {
+            method: "PATCH",
+            body: data,
+          }
+        );
+      } else {
+        response = await fetch("http://localhost:8000/usuarios/", {
+          method: "POST",
+          body: data,
+        });
+      }
+      if (!response.ok) {
+        const data = await response.json();
+        document.getElementById("error-general").textContent =
+          data.detail || "Error al registrar usuario";
+        return;
+      }
+      modalUser.classList.add("hidden");
+      showConfirmModal(
+        editMode
+          ? "Usuario editado correctamente"
+          : "Usuario agregado correctamente"
+      );
+      fetchUsuarios();
+    };
+
+    // --- Inicialización ---
+    fetchUsuarios();
+  </script>
+</MainLayout>
+userTable
+
