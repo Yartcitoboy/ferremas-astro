@@ -4,7 +4,7 @@ import { Icon } from "@astrojs/starlight/components";
 ---
 
 <MainLayout>
-  <!-- Notificación flotante -->
+  <!-- Modal de confirmación -->
   <div
     id="modal-confirm"
     class="bg-opacity-40 fixed inset-0 z-50 flex hidden items-center justify-center bg-black"
@@ -22,6 +22,7 @@ import { Icon } from "@astrojs/starlight/components";
       >
     </div>
   </div>
+
   <div class="flex min-h-screen flex-col bg-neutral-900 text-white">
     <header
       class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-neutral-700 bg-neutral-800 px-6"
@@ -42,7 +43,7 @@ import { Icon } from "@astrojs/starlight/components";
 
     <main class="flex-1 p-6">
       <!-- Gestión de Usuarios -->
-      <section id="usuarios" class="">
+      <section id="usuarios">
         <div class="mb-6 flex items-center justify-between">
           <h2 class="text-lg font-semibold text-orange-500">
             Gestión de Usuarios
@@ -50,9 +51,8 @@ import { Icon } from "@astrojs/starlight/components";
           <button
             id="btn-add-user"
             class="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
+            >+ Agregar Usuario</button
           >
-            + Agregar Usuario
-          </button>
         </div>
         <div class="mb-4 flex gap-4">
           <input
@@ -66,11 +66,11 @@ import { Icon } from "@astrojs/starlight/components";
             class="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:ring-2 focus:ring-orange-500 focus:outline-none"
           >
             <option value="">Todos los roles</option>
+            <option value="1">Administrador</option>
             <option value="2">Vendedor</option>
-            <option value="5">Cliente</option>
             <option value="3">Contador</option>
             <option value="4">Bodeguero</option>
-            <option value="1">Administrador</option>
+            <option value="5">Cliente</option>
           </select>
           <button
             id="btn-refresh"
@@ -187,11 +187,11 @@ import { Icon } from "@astrojs/starlight/components";
                 required
               >
                 <option value="">Selecciona un rol</option>
+                <option value="1">Administrador</option>
                 <option value="2">Vendedor</option>
-                <option value="5">Cliente</option>
                 <option value="3">Contador</option>
                 <option value="4">Bodeguero</option>
-                <option value="1">Administrador</option>
+                <option value="5">Cliente</option>
               </select>
               <span id="error-rol" class="text-xs text-red-500"></span>
             </div>
@@ -208,6 +208,22 @@ import { Icon } from "@astrojs/starlight/components";
   </div>
 
   <script type="module">
+    // --- Utilidades ---
+    const rolesMap = {
+      Administrador: "1",
+      Vendedor: "2",
+      Contador: "3",
+      Bodeguero: "4",
+      Cliente: "5",
+    };
+    const rolesText = {
+      1: "Administrador",
+      2: "Vendedor",
+      3: "Contador",
+      4: "Bodeguero",
+      5: "Cliente",
+    };
+
     function showConfirmModal(message) {
       const modal = document.getElementById("modal-confirm");
       const msg = document.getElementById("modal-confirm-message");
@@ -217,11 +233,25 @@ import { Icon } from "@astrojs/starlight/components";
         modal.classList.add("hidden");
       };
     }
-    // --- Variables ---
+
+    function limpiarErrores() {
+      [
+        "error-rut",
+        "error-telefono",
+        "error-email",
+        "error-rol",
+        "error-general",
+        "error-contrasena",
+      ].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = "";
+      });
+    }
+
+    // --- Variables y Elementos ---
     let usuarios = [];
     let editMode = false;
 
-    // --- Elementos ---
     const userTable = document.getElementById("userTable");
     const searchNameInput = document.getElementById("searchName");
     const filterRoleSelect = document.getElementById("filterRole");
@@ -241,47 +271,37 @@ import { Icon } from "@astrojs/starlight/components";
     const formContrasena = document.getElementById("form-contrasena");
     const formRol = document.getElementById("form-rol");
 
-    const btnRefresh = document.getElementById("btn-refresh");
-    btnRefresh.onclick = fetchUsuarios;
-
-    // --- Funciones CRUD ---
+    // --- CRUD y Render ---
     async function fetchUsuarios() {
       const res = await fetch("http://localhost:8000/usuarios/");
       usuarios = await res.json();
       renderUsuarios();
     }
 
-    const rolToId = {
-      Administrador: "1",
-      Vendedor: "2",
-      Contador: "3",
-      Bodeguero: "4",
-      Cliente: "5",
-    };
     function renderUsuarios() {
       const search = searchNameInput.value.toLowerCase();
       const role = filterRoleSelect.value;
       userTable.innerHTML = usuarios
         .filter(
           (u) =>
-            u.nombre_apellidos.toLowerCase().includes(search) &&
-            (role === "" || rolToId[u.rol] === role) // Compara el id esperado con el valor del select
+            u.nombre_apellidos?.toLowerCase().includes(search) &&
+            (role === "" || rolesMap[u.rol] === role)
         )
         .map(
           (u) => `
-    <tr class="hover:bg-neutral-700">
-      <td class="border-b border-neutral-700 px-4 py-2">${u.nombre_apellidos}</td>
-      <td class="border-b border-neutral-700 px-4 py-2">${u.rut}</td>
-      <td class="border-b border-neutral-700 px-4 py-2">${u.direccion}</td>
-      <td class="border-b border-neutral-700 px-4 py-2">${u.telefono}</td>
-      <td class="border-b border-neutral-700 px-4 py-2">${u.email}</td>
-      <td class="border-b border-neutral-700 px-4 py-2">${u.rol}</td>
-      <td class="border-b border-neutral-700 px-4 py-2 flex gap-2">
-        <button class="btn-edit-user flex items-center gap-1 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600" data-rut="${u.rut}">Editar</button>
-        <button class="btn-delete-user flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600" data-rut="${u.rut}">Eliminar</button>
-      </td>
-    </tr>
-  `
+            <tr class="hover:bg-neutral-700">
+              <td class="border-b border-neutral-700 px-4 py-2">${u.nombre_apellidos}</td>
+              <td class="border-b border-neutral-700 px-4 py-2">${u.rut}</td>
+              <td class="border-b border-neutral-700 px-4 py-2">${u.direccion}</td>
+              <td class="border-b border-neutral-700 px-4 py-2">${u.telefono}</td>
+              <td class="border-b border-neutral-700 px-4 py-2">${u.email}</td>
+              <td class="border-b border-neutral-700 px-4 py-2">${u.rol}</td>
+              <td class="border-b border-neutral-700 px-4 py-2 flex gap-2">
+                <button class="btn-edit-user flex items-center gap-1 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600" data-rut="${u.rut}">Editar</button>
+                <button class="btn-delete-user flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600" data-rut="${u.rut}">Eliminar</button>
+              </td>
+            </tr>
+          `
         )
         .join("");
       addEditDeleteListeners();
@@ -302,8 +322,7 @@ import { Icon } from "@astrojs/starlight/components";
           formDireccion.value = usuario.direccion;
           formTelefono.value = usuario.telefono;
           formEmail.value = usuario.email;
-          formRol.value =
-            usuario.id_rol?.toString() || usuario.rol?.toString() || "";
+          formRol.value = rolesMap[usuario.rol] || "";
           modalUser.classList.remove("hidden");
         };
       });
@@ -311,9 +330,25 @@ import { Icon } from "@astrojs/starlight/components";
         btn.onclick = async () => {
           if (!confirm("¿Seguro que deseas eliminar este usuario?")) return;
           const rut = btn.dataset.rut;
-          await fetch(`http://localhost:8000/usuarios/${rut}`, {
-            method: "DELETE",
-          });
+          const response = await fetch(
+            `http://localhost:8000/usuarios/${rut}`,
+            {
+              method: "DELETE",
+            }
+          );
+          if (!response.ok) {
+            const data = await response.json();
+            let msg =
+              data.detail ||
+              "No se puede eliminar el usuario porque tiene ventas asociadas.";
+            // Detecta el error de Oracle y muestra un mensaje más claro
+            if (msg.includes("ORA-02292")) {
+              msg =
+                "No se puede eliminar el usuario porque tiene ventas asociadas.";
+            }
+            showConfirmModal(msg);
+            return;
+          }
           showConfirmModal("Usuario eliminado correctamente");
           fetchUsuarios();
         };
@@ -336,14 +371,6 @@ import { Icon } from "@astrojs/starlight/components";
     filterRoleSelect.onchange = renderUsuarios;
 
     // --- Validación y envío ---
-    function limpiarErrores() {
-      document.getElementById("error-rut").textContent = "";
-      document.getElementById("error-telefono").textContent = "";
-      document.getElementById("error-email").textContent = "";
-      document.getElementById("error-rol").textContent = "";
-      document.getElementById("error-general").textContent = "";
-    }
-
     userForm.onsubmit = async (e) => {
       e.preventDefault();
       limpiarErrores();
@@ -370,14 +397,6 @@ import { Icon } from "@astrojs/starlight/components";
         valido = false;
       }
 
-      // Mapear el nombre del rol a su id_rol (ajusta según tu base de datos)
-      const rolesMap = {
-        Administrador: 1,
-        Vendedor: 2,
-        Contador: 3,
-        Bodeguero: 4,
-        Cliente: 5,
-      };
       const id_rol = Number(formRol.value);
       if (!id_rol) {
         document.getElementById("error-rol").textContent =
@@ -430,5 +449,3 @@ import { Icon } from "@astrojs/starlight/components";
     fetchUsuarios();
   </script>
 </MainLayout>
-userTable
-
