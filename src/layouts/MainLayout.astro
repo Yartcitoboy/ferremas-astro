@@ -3,6 +3,7 @@
 import Meta from "@components/Meta.astro";
 import Navbar from "@components/sections/navbar&footer/Navbar.astro";
 import FooterSection from "@components/sections/navbar&footer/FooterSection.astro";
+import AuthStatus from "@/components/AuthStatus.astro";
 import { SITE } from "@data/constants";
 import "@styles/global.css";
 
@@ -10,6 +11,9 @@ import "@styles/global.css";
 const { isNavbarSticky = true } = Astro.props;
 const { title = SITE.title, meta, structuredData, lang = "en" } = Astro.props;
 const clientID = import.meta.env.PAYPAL_CLIENT_ID;
+
+
+
 
 // Interface to type-check the properties
 interface Props {
@@ -31,7 +35,11 @@ We set the language of the page to English and add classes for scrollbar and scr
     <Meta meta={meta} structuredData={structuredData} />
     <!-- Define the title of the page -->
     <title>{title}</title>
-    {clientID && <script src={`https://www.paypal.com/sdk/js?client-id=${clientID}`}></script>}
+    {
+      clientID && (
+        <script src={`https://www.paypal.com/sdk/js?client-id=${clientID}`} />
+      )
+    }
     <script is:inline>
       // Script to handle dark mode. It will check if the theme is stored in localStorage or if dark theme is preferred by system settings
       if (
@@ -60,6 +68,23 @@ We set the language of the page to English and add classes for scrollbar and scr
       <main>
         <slot />
       </main>
+
+      <div
+        id="modal-gracias"
+        class="bg-opacity-60 fixed inset-0 z-50 flex hidden items-center justify-center bg-black"
+      >
+        <div class="rounded-lg bg-white p-8 text-center shadow-lg">
+          <h2 class="mb-4 text-2xl font-bold text-green-600">
+            ¡Gracias por registrarte!
+          </h2>
+          <p class="mb-6 text-neutral-700">Tu registro fue exitoso.</p>
+          <button
+            id="btn-ir-login"
+            class="rounded bg-orange-500 px-6 py-2 font-semibold text-white hover:bg-orange-600"
+            >Iniciar sesión</button
+          >
+        </div>
+      </div>
     </div>
     <FooterSection />
     <script>
@@ -80,4 +105,28 @@ We set the language of the page to English and add classes for scrollbar and scr
   </body>
 </html>
 
-<script is:inline src="../node_modules/flyonui/flyonui.js"></script> 
+<script is:inline src="../node_modules/flyonui/flyonui.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const modalGracias = document.getElementById('modal-gracias');
+    const btnLogin = document.getElementById('btn-ir-login');
+    const loginButtonContainer = document.getElementById('login-button-container');
+
+    document.addEventListener('registroExitoso', () => {
+      modalGracias?.classList.remove('hidden');
+    });
+
+    btnLogin?.addEventListener('click', () => {
+      modalGracias?.classList.add('hidden');
+      loginButtonContainer?.scrollIntoView({ behavior: 'smooth' });
+
+      // 🔽 Espera un poco y luego simula clic en el botón de login
+      setTimeout(() => {
+        const loginBtn = loginButtonContainer?.querySelector('button');
+        loginBtn?.click();
+      }, 600); // 600ms para esperar a que termine el scroll animado
+    });
+  });
+</script>
+
+
