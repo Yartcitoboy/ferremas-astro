@@ -16,8 +16,7 @@ npm install
 Este comando instalara todas las dependencias necesarias definidas en el archivo `package.json`.
 
 ```bash
-npm install express
-npm install oracledb
+npm install express oracledb
 ```
 Este comando instalara node y el oracledb para trabajar con oracle en la base de datos.
 
@@ -40,7 +39,7 @@ Luego entraremos al ambiente virtual - si estan con linux usaran source, si no e
 ```
 Por ultimo instalan esto:
 ```bash
-pip install fastapi uvicorn oracledb
+pip oracledb fastapi uvicorn python-jose[cryptography] python-multipart passlib bcrypt
 ```
 
 una ves instalado haran esto:
@@ -55,6 +54,29 @@ Y finalmente levantamos la api (dentro de la carpeta de ferremas-astro)
 uvicorn src.lib.main:app --reload
 ```
 
+### ENV
+´´´bash
+## puerto
+PORT=
+
+## Base de datos
+DB_USER=
+DB_PASSWORD=
+DB_CONNECTION_STRING=
+DSN=
+
+## Apykey
+
+
+##URL de backend
+public_api_url=
+
+## PayPal
+##URL de frontend
+PAYPAL_CLIENT_ID=
+
+PAYPAL_CLIENT_SECRET=
+´´´
 
 ### Comandos
 
