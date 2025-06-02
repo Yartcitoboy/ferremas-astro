@@ -1,88 +1,98 @@
-# Proyecto Ferremas
+## PROYECTO FERREMAS
+## Instalación
 
-### Clone el Repositorio
-Una vez creado el repositorio, puede clonarlo en su máquina local utilizando los siguientes comandos:
-
-```bash
-git clone https://github.com/[YOUR_USERNAME]/[YOUR_REPO_NAME].git
-cd [ferremas-astro]
-```
-
-### Instalación
+Instalar el proyecto con npm install
 
 ```bash
-npm install
+  npm install 
 ```
-Este comando instalara todas las dependencias necesarias definidas en el archivo `package.json`.
-
+Luego instalar las demás dependencias dentro de la carpeta ferremas-astro
 ```bash
-npm install express oracledb
+  npm install express oracledb
 ```
-Este comando instalara node y el oracledb para trabajar con oracle en la base de datos.
-
-
-una vez instaladas estas dos debemos levantar la api de este modo (debes estar dentro de la carpeta ferremas-astro en su terminal).
+Aca se trabajara con el ambiente virtual.
 ```bash
-node src/lib/index.js
+  python -m venv AcaElNombre
 ```
-
-Aca se trabajara con FastApi - Uvicorn y oracle db, ademas de usar el ambiente virtual.
-
--Primero haremos el ambiente virtual.
-
+Dentro del ambiente instalar dependencias necesarias
 ```bash
-python -m venv AcaElNombre
+  pip oracledb fastapi uvicorn python-jose[cryptography] python-multipart passlib bcrypt
 ```
-Luego entraremos al ambiente virtual - si estan con linux usaran source, si no el de windows
+Una vez instalado se hara esto
 ```bash
-[Linux]-> source AcaElNombre/bin/activate - [Windows]-> AcaElNombre/Scripts/activate
+  pip freeze > requirements.txt
 ```
-Por ultimo instalan esto:
-```bash
-pip oracledb fastapi uvicorn python-jose[cryptography] python-multipart passlib bcrypt
-```
-
-una ves instalado haran esto:
-
-```bash
-pip freeze > requirements.txt
-```
-
 Y finalmente levantamos la api (dentro de la carpeta de ferremas-astro)
-
+PARA EXPRESS
 ```bash
-uvicorn src.lib.main:app --reload
+  node src/lib/index.js
+```
+PARA FASTAPI
+```bash
+  uvicorn src.lib.main:app --reload
+```
+y corremos el proyecto
+```bash
+  npm run dev
 ```
 
-### ENV
-´´´bash
-## puerto
-PORT=
+## .ENV aca crean el .env dentro de ferremas-astro
 
-## Base de datos
+**PUERTO**
+
+PORT=6500
+
+**--------------------**
+
+**BASE DE DATOS**
+
 DB_USER=
+
 DB_PASSWORD=
+
 DB_CONNECTION_STRING=
+
 DSN=
 
-## Apykey
+**--------------------**
 
+**APYKEY**
 
-##URL de backend
+API_KEY=
+
+**URL DEL BACKED DE EXPRESS**
+
 public_api_url=
 
-## PayPal
-##URL de frontend
+**URL DEL FROM DE PAYPAL**
+
 PAYPAL_CLIENT_ID=
 
 PAYPAL_CLIENT_SECRET=
-´´´
 
-### Comandos
 
-con las dependecias instalas , puedes levantar la pagina a tu localhost
 
-* `npm run dev`: Inicia un servidor de desarrollo local con la recarga en caliente habilitada.
-* `npm run preview`: Sirve su salida de compilación localmente para obtener una vista previa antes de la implementación.
-* `npm run build`: Agrupa su sitio en archivos estáticos para la producción.
+
+## Expresiones de gratitud
+
+ - [Template](https://astro.build/themes/details/screwfast/)
+ - [README](https://readme.so/es)
+
+
+## Pila de tecnología
+
+**Client:** Astro, Vue, TailwindCSS
+
+**LENGUAJE** Java, TypeScript, Python
+
+**DATA BASE:** ORACLE
+
+**APIs:** FASTAPI y EXPRESS
+
+
+## Autores
+
+- [@Is4](https://github.com/Yartcitoboy)
+- [@Liz](https://github.com/alli-rubio)
+- [@Charly](https://github.com/apeleoca)
 
