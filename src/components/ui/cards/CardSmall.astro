@@ -16,17 +16,17 @@ const { product } = Astro.props;
   <!-- Contenido abajo -->
   <div class="flex flex-col flex-1 p-4">
     <!-- Nombre -->
-    <a href={`/products/${product.id_producto}`} data-astro-prefetch>
+    <a href={`/product/${product.id_producto}`} data-astro-prefetch>
       <h3 class="text-lg font-bold text-neutral-800 flex items-center gap-2">
         {product.nombre}
         <Icon name="openInNew" />
       </h3>
     </a>
     <!-- Descripción -->
-    <p class="mt-2 text-neutral-600 text-sm flex-1">{product.descripcion || "Sin descripción"}</p>
+    <p class="text-xs text-gray-400">{product.descripcion}</p>
     <!-- Precio y botón -->
     <div class="mt-4 flex items-center justify-between">
-      <span class="text-xl font-bold text-green-700">${product.precio}</span>
+      <span class="precio-producto text-xl font-bold text-black" data-precio-usd={product.precio}> ${product.precio.toFixed(2)} USD</span>
       <button
         type="button"
         class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"

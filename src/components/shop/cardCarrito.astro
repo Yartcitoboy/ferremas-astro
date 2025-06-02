@@ -1,12 +1,12 @@
 <section
   id="cart-section"
-  class="fixed top-8 right-0 z-50 hidden w-96 bg-white p-6 shadow-lg transition-transform duration-500"
+  class="fixed top-8 right-0 z-50 hidden w-96 bg-white p-6 shadow-lg transition-transform duration-500 text-black"
 >
-  <h2 class="mb-4 text-xl font-bold">Carrito</h2>
+  <h2 class="mb-4 text-xl font-bold text-black">Carrito</h2>
   <div id="cart-items" class="mb-4">
     {/* Los items del carrito se renderizan aquí por el script */}
   </div>
-  <div class="mb-4 border-t pt-4">
+  <div class="mb-4 border-t pt-4 text-black">
     <div
       id="descuento-row"
       class="mb-1 flex items-center justify-between"
@@ -40,14 +40,29 @@
 </section>
 
 <script is:inline>
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     // Carrito en memoria
     let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    let monedaActual = "USD";
+    let tasaCambioCLP = 0;
 
-    function saveCart() {
+    async function obtenerTasaCambioCLP() {
+      try {
+        const res = await fetch(
+          "https://v6.exchangerate-api.com/v6/5e6937378c7f54c73181a2af/latest/USD"
+        );
+        const data = await res.json();
+        tasaCambioCLP = data.conversion_rates.CLP;
+      } catch (e) {
+        console.error("Error al obtener tasa de cambio:", e);
+        tasaCambioCLP = 900; // Valor por defecto si falla
+      }
+    }
+
+    async function saveCart() {
       localStorage.setItem("cart", JSON.stringify(cart));
       cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      updateCartUI();
+      await updateCartUI();
     }
 
     function addToCart(product) {
@@ -82,6 +97,7 @@
     }
     window.changeQty = changeQty;
 
+
     function mostrarOfertaMsg(totalQty) {
       const ofertaMsg = document.getElementById("oferta-msg");
       if (ofertaMsg) {
@@ -94,7 +110,7 @@
       }
     }
 
-    function updateCartUI() {
+    async function updateCartUI() {
       const cartItemsContainer = document.getElementById("cart-items");
       const cartCount = document.getElementById("cart-count");
       const cartTotalElement = document.getElementById("cart-total");
@@ -108,40 +124,66 @@
 
       if (!cartItemsContainer) return;
 
+      if (monedaActual === "CLP" && tasaCambioCLP === 0) {
+        await obtenerTasaCambioCLP();
+      }
+
       cartItemsContainer.innerHTML = cart.length
         ? cart
             .map(
-              (item) => `
-      <div class="flex items-center mb-4 border-b pb-2">
-        <input type="checkbox" class="mr-2" id="item-${item.id_producto}" checked onchange="window.recalculateTotal()">
-        <img src="${item.imagen}" alt="${item.nombre}" class="w-16 h-16 object-cover mr-4 rounded">
-        <div class="flex-grow">
-          <h6 class="font-semibold">${item.nombre}</h6>
-          <div class="flex items-center gap-2 mt-1">
-            <button class="px-2 py-1 bg-gray-200 text-gray-700 rounded" onclick="window.changeQty('${item.id_producto}', -1)">−</button>
-            <span class="text-sm">${item.qty}</span>
-            <button class="px-2 py-1 bg-gray-200 text-gray-700 rounded" onclick="window.changeQty('${item.id_producto}', 1)">+</button>
+              (item) => {
+                const precioUnit = monedaActual === "CLP"
+                  ? `$${Math.round(item.precio * tasaCambioCLP).toLocaleString("es-CL")} CLP`
+                  : `$${item.precio.toFixed(2)} USD`;
+
+                const precioTotalItem = monedaActual === "CLP"
+                  ? `$${Math.round(item.precio * item.qty * tasaCambioCLP).toLocaleString("es-CL")} CLP.`
+                  : `$${(item.precio * item.qty).toFixed(2)} USD`;
+
+                return `
+          <div class="flex items-center mb-4 border-b pb-2">
+            <input type="checkbox" class="mr-2" id="item-${item.id_producto}" checked onchange="window.recalculateTotal()">
+            <img src="${item.imagen}" alt="${item.nombre}" class="w-16 h-16 object-cover mr-4 rounded">
+            <div class="flex-grow">
+              <h6 class="font-semibold">${item.nombre}</h6>
+              <div class="text-sm text-neutral-500">${precioUnit}</div>
+              <div class="flex items-center gap-2 mt-1">
+                <button class="px-2 py-1 bg-gray-200 text-gray-700 rounded" onclick="window.changeQty('${item.id_producto}', -1)">−</button>
+                <span class="text-sm">${item.qty}</span>
+                <button class="px-2 py-1 bg-gray-200 text-gray-700 rounded" onclick="window.changeQty('${item.id_producto}', 1)">+</button>
+              </div>
+            </div>
+            <span class="font-semibold">${precioTotalItem}</span>
+            <button onclick="window.removeFromCart('${item.id_producto}')" class="ml-4 text-red-500">🗑️</button>
           </div>
-        </div>
-        <span class="font-semibold">$${(item.precio * item.qty).toFixed(2)}</span>
-        <button onclick="window.removeFromCart('${item.id_producto}')" class="ml-4 text-red-500">🗑️</button>
-      </div>
-    `
+        `;
+              }
             )
             .join("")
         : "<em class='block py-4 text-gray-500'>El carrito está vacío</em>";
 
       if (cartCount)
         cartCount.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
-      if (cartTotalElement) cartTotalElement.textContent = total.toFixed(2);
+
+      const formattedTotal = monedaActual === "CLP"
+        ? `${Math.round(total * tasaCambioCLP).toLocaleString("es-CL")} CLP`
+        : total.toFixed(2);
+      if (cartTotalElement) cartTotalElement.textContent = formattedTotal;
+
+      const formattedSubtotal = monedaActual === "CLP"
+        ? `${Math.round(subtotal * tasaCambioCLP).toLocaleString("es-CL")} CLP`
+        : subtotal.toFixed(2);
       if (cartSubtotalElement)
-        cartSubtotalElement.textContent = subtotal.toFixed(2);
+        cartSubtotalElement.textContent = formattedSubtotal;
 
       // Mostrar descuento
       if (descuentoRow && cartDescuentoElement) {
+        const formattedDescuento = monedaActual === "CLP"
+          ? `${Math.round(descuento * tasaCambioCLP).toLocaleString("es-CL")} CLP`
+          : descuento.toFixed(2);
         if (descuento > 0.01) {
           descuentoRow.style.display = "flex";
-          cartDescuentoElement.textContent = descuento.toFixed(2);
+          cartDescuentoElement.textContent = formattedDescuento.replace('-', ''); // Remove the negative sign for display
         } else {
           descuentoRow.style.display = "none";
           cartDescuentoElement.textContent = "0";
@@ -151,7 +193,7 @@
       // Mostrar mensaje de oferta solo aquí
       mostrarOfertaMsg(totalQty);
 
-      // Renderizar el botón de PayPal cada vez que se actualiza el carrito
+      // Renderizar el botón de PayPal cada vez que se actualiza el carrito (ahora también para CLP)
       const paypalButtonContainer = document.getElementById(
         "paypal-button-container"
       );
@@ -164,8 +206,10 @@
                 purchase_units: [
                   {
                     amount: {
-                      value: calculateSelectedTotal().toFixed(2),
-                      currency_code: "USD",
+                      value: monedaActual === "CLP"
+                        ? (calculateSelectedTotal() * tasaCambioCLP).toFixed(2)
+                        : calculateSelectedTotal().toFixed(2),
+                      currency_code: monedaActual === "CLP" ? "CLP" : "USD",
                     },
                   },
                 ],
@@ -185,7 +229,10 @@
                   cantidad: item.qty,
                   precio_unitario: item.precio,
                 }));
-                const total = calculateSelectedTotal();
+                const totalUSD = calculateSelectedTotal();
+                const totalCLP = totalUSD * tasaCambioCLP;
+                const totalPago = monedaActual === "CLP" ? totalCLP : totalUSD;
+                const currency = monedaActual;
 
                 // 2. Envía el pedido al backend
                 try {
@@ -193,8 +240,9 @@
                     orderID: data.orderID,
                     userId: id_usuario,
                     items,
-                    total,
+                    total: totalPago,
                     direccion_envio,
+                    currency: currency,
                   });
                   const res = await fetch(
                     "http://localhost:6500/capture-paypal-order",
@@ -205,8 +253,9 @@
                         orderID: data.orderID,
                         userId: id_usuario,
                         items,
-                        total,
+                        total: totalPago,
                         direccion_envio,
+                        currency: currency,
                       }),
                     }
                   );
@@ -226,6 +275,8 @@
             },
           })
           .render("#paypal-button-container");
+      } else if (paypalButtonContainer) {
+        paypalButtonContainer.innerHTML = ""; // Clear PayPal button if paypal is not available
       }
     }
 
@@ -239,15 +290,25 @@
       const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
       const descuento = subtotal - total;
 
-      if (cartTotalElement) cartTotalElement.textContent = total.toFixed(2);
+      const formattedTotal = monedaActual === "CLP"
+        ? `${Math.round(total * tasaCambioCLP).toLocaleString("es-CL")} CLP`
+        : total.toFixed(2);
+      if (cartTotalElement) cartTotalElement.textContent = formattedTotal;
+
+      const formattedSubtotal = monedaActual === "CLP"
+        ? `${Math.round(subtotal * tasaCambioCLP).toLocaleString("es-CL")} CLP`
+        : subtotal.toFixed(2);
       if (cartSubtotalElement)
-        cartSubtotalElement.textContent = subtotal.toFixed(2);
+        cartSubtotalElement.textContent = formattedSubtotal;
 
       // Mostrar descuento
       if (descuentoRow && cartDescuentoElement) {
+        const formattedDescuento = monedaActual === "CLP"
+          ? `${Math.round(descuento * tasaCambioCLP).toLocaleString("es-CL")} CLP`
+          : descuento.toFixed(2);
         if (descuento > 0.01) {
           descuentoRow.style.display = "flex";
-          cartDescuentoElement.textContent = descuento.toFixed(2);
+          cartDescuentoElement.textContent = formattedDescuento.replace('-', '');
         } else {
           descuentoRow.style.display = "none";
           cartDescuentoElement.textContent = "0";
@@ -271,20 +332,20 @@
     }
 
     function calculateSelectedTotal() {
-      let selectedTotal = 0;
+      let selectedTotalUSD = 0;
       let totalQty = 0;
       cart.forEach((item) => {
         const checkbox = document.getElementById(`item-${item.id_producto}`);
         if (checkbox?.checked) {
-          selectedTotal += item.precio * item.qty;
+          selectedTotalUSD += item.precio * item.qty;
           totalQty += item.qty;
         }
       });
       // Aplica oferta si hay 4 o más productos
       if (totalQty >= 4) {
-        selectedTotal = selectedTotal * 0.9; // 10% de descuento
+        selectedTotalUSD = selectedTotalUSD * 0.9; // 10% de descuento
       }
-      return selectedTotal;
+      return selectedTotalUSD;
     }
 
     function animateCart() {
@@ -298,8 +359,8 @@
     // Botones abrir/cerrar/limpiar
     const openCartButton = document.getElementById("open-cart");
     if (openCartButton) {
-      openCartButton.onclick = () => {
-        updateCartUI();
+      openCartButton.onclick = async () => {
+        await updateCartUI();
         document.getElementById("cart-section").classList.remove("hidden");
       };
     }
@@ -317,12 +378,22 @@
       clearCartButton.onclick = () => clearCart();
     }
 
+    const selectMoneda = document.getElementById("currency-select");
+    if (selectMoneda) {
+      selectMoneda.addEventListener("change", async (e) => {
+        monedaActual = e.target.value;
+        await updateCartUI();
+        recalculateTotal(); // Recalculate and update displayed totals
+      });
+    }
+
     // Exponer funciones globales
     window.addToCart = addToCart;
     window.removeFromCart = removeFromCart;
     window.changeQty = changeQty;
 
     // Inicializar UI
+    await obtenerTasaCambioCLP();
     updateCartUI();
   });
 </script>

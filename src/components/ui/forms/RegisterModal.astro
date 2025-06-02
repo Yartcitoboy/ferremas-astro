@@ -229,9 +229,6 @@ const config = {
     if (response.ok) {
       // 1. Ocultar el modal de registro principal
       if (registerModal) registerModal.classList.add("hidden");
-        // Asegúrate de que cualquier overlay generado por hs-overlay también se oculte
-        // Esto a veces requiere un pequeño retraso o una llamada a la API de Preline/HS si la tienen
-        // para cerrar el modal correctamente, pero 'hidden' debería ser suficiente para lo visual.
       }
 
       // 2. Mostrar el modal de gracias

@@ -45,6 +45,7 @@ router.get("/" ,async (req, res) => {
         const productos = result.rows.map(row => ({
             id_producto: row[0],
             nombre: row[2],
+            descripcion: row[3],
             categoria: row[9],
             stock: row[5],
             precio: row[4],
@@ -64,7 +65,6 @@ router.get("/" ,async (req, res) => {
     }
 });
 
-// Ruta para obtener un producto por ID
 // Ruta para obtener un producto por ID
 router.get("/:id_producto", async (req, res) => {
   let cone;

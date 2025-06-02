@@ -52,12 +52,19 @@ const pageTitle: string = `Products | ScrewFast`;
         <button id="open-cart" class="ml-6 bg-blue-600 text-white rounded-full p-3 shadow-lg z-50 flex items-center gap-2">
           🛒 <span id="cart-count">0</span>
         </button>
+
+        <label for="currency-select" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Moneda:</label>
+        <select id="currency-select" class="border border-gray-300 rounded px-3 py-1 text-sm">
+          <option value="USD" selected>USD $</option>
+          <option value="CLP">CLP $</option>
+        </select>
       </div>
     </div>
-    <!-- Displaying products dynamically -->
+
     <section class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6 xl:gap-8">
       {
         products.map((product: any, index: number) => {
+          <p class="text-xs text-gray-400">DEBUG: {JSON.stringify(product)}</p>
           const position = index % 4;
           if (position === 0 || position === 3) {
             return <CardSmall product={product} />;
@@ -68,7 +75,6 @@ const pageTitle: string = `Products | ScrewFast`;
       }
     </section>
   </div>
-
 </MainLayout>
 
 <div id="cart-modal-backdrop" class="fixed inset-0 z-50 hidden">
@@ -111,5 +117,54 @@ const pageTitle: string = `Products | ScrewFast`;
       }
     });
   });
-</script>
 
+  let tasaCambio = 0;
+
+  async function obtenerTasaCambio() {
+    try {
+      const res = await fetch("https://v6.exchangerate-api.com/v6/5e6937378c7f54c73181a2af/latest/USD");
+      const data = await res.json();
+      tasaCambio = data.conversion_rates.CLP;
+    } catch (e) {
+      console.error("Error al obtener tasa de cambio:", e);
+      tasaCambio = 900; // Valor de respaldo si falla
+    }
+  }
+
+  async function actualizarPrecios(moneda) {
+    if (!tasaCambio && moneda === "CLP") {
+      await obtenerTasaCambio();
+    }
+
+    const precios = document.querySelectorAll(".precio-producto");
+    precios.forEach((el) => {
+      const precioUSD = parseFloat(el.getAttribute("data-precio-usd"));
+      if (moneda === "USD") {
+        el.textContent = `$${precioUSD.toFixed(2)} USD`;
+      } else if (moneda === "CLP") {
+        const clp = precioUSD * tasaCambio;
+        el.textContent = (Math.round(clp)).toLocaleString("es-CL", {
+          style: "currency",
+          currency: "CLP",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        });
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const select = document.getElementById("currency-select");
+    if (!select) return;
+
+    await obtenerTasaCambio(); // Obtener la tasa de cambio al cargar la página
+
+    select.addEventListener("change", (e) => {
+      const monedaSeleccionada = e.target.value;
+      actualizarPrecios(monedaSeleccionada);
+    });
+
+    // Carga inicial con la moneda seleccionada
+    actualizarPrecios(select.value);
+  });
+</script>

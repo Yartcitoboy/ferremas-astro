@@ -5,7 +5,7 @@ interface Props {
   product: {
     id_producto: string;
     nombre: string;
-    descripcion?: string;
+    descripcion: string;
     categoria: string;
     stock: number;
     precio: number;
@@ -18,7 +18,7 @@ const { product } = Astro.props;
 
 <div class="flex flex-col bg-white rounded-xl shadow-lg overflow-hidden h-full">
   <!-- Imagen arriba -->
-  <a href={`/products/${product.id_producto}`} data-astro-prefetch class="block">
+  <a href={`/product/${product.id_producto}`} data-astro-prefetch class="block">
     <img
       src={product.imagen}
       alt={product.nombre || "Imagen del producto"}
@@ -35,10 +35,13 @@ const { product } = Astro.props;
       </h3>
     </a>
     <!-- Descripción -->
-    <p class="mt-2 text-neutral-600 text-sm flex-1">{product.descripcion || "Sin descripción"}</p>
+    <p class="text-xs text-gray-400">{product.descripcion}</p>
+
+
+
     <!-- Precio y botón -->
     <div class="mt-4 flex items-center justify-between">
-      <span class="text-xl font-bold text-green-700">${product.precio}</span>
+      <span class="precio-producto text-xl font-bold text-black" data-precio-usd={product.precio}> ${product.precio.toFixed(2)} USD</span>
       <button
         type="button"
         class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"

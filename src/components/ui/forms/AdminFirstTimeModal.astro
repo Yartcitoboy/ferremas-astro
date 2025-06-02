@@ -1,0 +1,87 @@
+---
+const config = {
+  id: "hs-admin-first-login-modal",
+  title: "¡Bienvenido, Administrador!",
+  subTitle: "¿Listo para gestionar la plataforma?",
+  btnText: "Ir al panel",
+  panelRedirect: "/admin/panel", // Ruta de redirección
+};
+---
+
+<div
+  id={config.id}
+  class="hs-overlay absolute start-0 top-0 z-50 hidden h-full w-full hs-overlay-backdrop-open:bg-neutral-900/90"
+>
+  <div
+    class="m-3 mt-0 opacity-0 transition-all ease-out hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 sm:mx-auto sm:w-full sm:max-w-lg"
+  >
+    <div class="mx-auto w-full max-w-md p-6">
+      <div
+        class="mt-7 rounded-xl border border-neutral-200 bg-neutral-100 shadow-xs dark:border-neutral-700 dark:bg-neutral-800"
+      >
+        <div class="p-4 sm:p-7">
+          <div class="text-center">
+            <h2 class="block text-2xl font-bold text-neutral-800 dark:text-neutral-200">
+              {config.title}
+            </h2>
+            <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              {config.subTitle}
+            </p>
+          </div>
+
+          <div class="mt-5">
+            <div class="grid gap-y-4">
+              <button
+                id="admin-go-panel-btn"
+                type="button"
+                data-redirect={config.panelRedirect} 
+                class="inline-flex justify-center items-center gap-2 rounded-lg border border-transparent bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"
+              >
+                {config.btnText}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script corregido -->
+<script>
+
+    declare global {
+    interface Window {
+      HSOverlay?: {
+        open: (el: HTMLElement) => void;
+        close: (el: HTMLElement) => void;
+      };
+    }
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById("hs-admin-first-login-modal");
+    const btn = document.getElementById("admin-go-panel-btn");
+
+    const esAdmin = localStorage.getItem("rol") === "admin";
+    const primerInicio = localStorage.getItem("adminPrimerInicio") === "true";
+
+    if (esAdmin && primerInicio && modal) {
+      window.HSOverlay?.open(modal);
+    }
+
+    if (btn && modal) {
+  btn.addEventListener("click", () => {
+    if (modal) {
+      window.HSOverlay?.close(modal);
+    }
+    localStorage.removeItem("adminPrimerInicio");
+
+    const redirectUrl = btn.getAttribute("data-redirect");
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
+  });
+}
+
+  });
+</script>
