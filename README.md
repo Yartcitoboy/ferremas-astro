@@ -77,6 +77,7 @@ PAYPAL_CLIENT_SECRET=
 
  - [Template](https://astro.build/themes/details/screwfast/)
  - [README](https://readme.so/es)
+ - [Copilot]([https://readme.so/es](https://copilot.microsoft.com/chats/LKbCfb2guUBu39FuKcaEs))
 
 
 ## Pila de tecnología
